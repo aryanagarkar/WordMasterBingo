@@ -1,6 +1,7 @@
 import sys
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget
-from PySide6.QtGui import QPainter, QPen, QBrush, QColor, QFont
+from PySide6.QtGui import QPainter, QPen, QBrush, QColor, QFont, QImage
+from PySide6.QtPrintSupport import QPrinter
 from PySide6.QtCore import Qt
 
 # Color key
@@ -92,8 +93,11 @@ class GridWindow(QMainWindow):
                 text_rect = painter.boundingRect(offset_x + col * self.grid_size, offset_y + (row + 2) * self.grid_size, self.grid_size, self.grid_size, Qt.AlignCenter, word)
                 painter.drawText(text_rect, Qt.AlignCenter, word)
 
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = GridWindow()
     window.show()
+    # Save the grid as a PDF
+    window.save_to_pdf('bingo_card.pdf')
     sys.exit(app.exec())
