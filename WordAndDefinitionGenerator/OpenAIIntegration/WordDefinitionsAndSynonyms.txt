@@ -1,31 +1,16 @@
-1. Play: Definition: engage in activity for enjoyment and recreation, Easy: have fun, Medium: entertain, Hard: frolic
-2. Sky: Definition: the region of the atmosphere and outer space seen from the Earth, Easy: heavens, Medium: firmament, Hard: vault of heaven
-3. Colorful: Definition: having a lot of different bright colors, Easy: vibrant, Medium: multicolored, Hard: kaleidoscopic
-4. Happy: Definition: Feeling or showing pleasure or contentment, Easy: Joyful, Medium: Content, Hard: Blithesome
-5. Tree: Definition: A tall perennial woody plant, having a single main stem or trunk and usually bearing branches and leaves at some distance from the ground, Easy: Plant, Medium: Flora, Hard: Arboreal
-6. Run: Definition: to move swiftly on foot, Easy: jog, Medium: sprint, Hard: gallop
-7. Ocean: Definition: A large body of saltwater that covers most of the Earth's surface, Easy: Sea, Medium: Blue, Hard: Abyss
-8. Bright: Definition: emitting or reflecting a lot of light, Easy: radiant, Medium: luminous, Hard: resplendent
-9. Jump: Definition: To move suddenly off the ground, Easy: Hop, Medium: Leap, Hard: Vault
-10. Mountain: Definition: a large natural elevation of the earth's surface rising abruptly from the surrounding level; Easy: hill, Medium: peak, Hard: alp
-11. Sing: Definition: Produce musical sounds with the voice, Easy: Warble, Medium: Croon, Hard: Trill
-12. Dance: Definition: Move rhythmically to music, Easy: Twirl, Medium: Groove, Hard: Pirouette
-13. Cloud: Definition: a visible mass of condensed water vapor floating in the atmosphere, Easy: mist, Medium: cumulus, Hard: nebula
-14. Beautiful: Definition: Pleasing the senses or mind in a delightful way, Easy: Lovely, Medium: Attractive, Hard: Exquisite
-15. Swim: Definition: To move through water by moving the body using the limbs, Easy: Splash, Medium: Paddle, Hard: Glide
-16. Soft: Definition: Not hard or firm, Easy: Gentle, Medium: Supple, Hard: Pliable1. Sing: Definition: to make musical sounds with the voice, Easy: vocalize, Medium: croon, Hard: warble
-2. Ocean: Definition: a large body of salt water that covers a majority of the Earth's surface, Easy: sea, Medium: marine, Hard: abyssal
-3. Cloud: Definition: a visible mass of condensed water vapor floating in the atmosphere, Easy: air, Medium: mist, Hard: nebula
-4. Jump: Definition: move suddenly and quickly off the ground, Easy: hop, Medium: leap, Hard: vault
-5. Play: Definition: engage in activity for enjoyment and recreation, Easy: have fun, Medium: participate, Hard: frolic
-6. Tree: Definition: A perennial plant with a trunk and branches bearing leaves or needles., Easy: Wood, Medium: Timber, Hard: Arboreal
-7. Happy: Definition: feeling or showing pleasure or contentment, Easy: joyful, Medium: content, Hard: elated
-8. Beautiful: Definition: Pleasing to the senses or mind, Easy: Pretty, Medium: Attractive, Hard: Exquisite
-9. Run: Definition: to move swiftly on foot, Easy: sprint, Medium: jog, Hard: gallop
-10. Mountain: Definition: a large natural elevation of the earth's surface rising abruptly from the surrounding level; Easy: hill, Medium: peak, Hard: crag
-11. Dance: Definition: to move the body in a rhythmic way, Easy: groove, Medium: boogie, Hard: pirouette
-12. Sky: Definition: The atmosphere seen from the Earth's surface as a vast expanse above. Easy: Heaven, Medium: Firmament, Hard: Empyrean
-13. Soft: Definition: Having a smooth, gentle, and non-abrasive texture, Easy: Gentle, Medium: Plush, Hard: Malleable
-14. Colorful: Definition: having many different colors, Easy: bright, Medium: vibrant, Hard: kaleidoscopic
-15. Swim: Definition: To move through water by moving your arms and legs, Easy: Float, Medium: Paddle, Hard: Plunge
-16. Bright: Definition: giving out or reflecting a lot of light, Easy: shiny, Medium: luminous, Hard: effulgent
+Bright: Adjective, Quality of being full of light, Shining, Radiant, Luminous
+Colorful: Adjective, Vivid and bright in color, Vibrant, Colorful, Resplendent
+Play: Verb, Engage in activity for enjoyment and recreation, Have fun, Participate, Amuse
+Tree: Noun, A perennial tall woody plant with a main trunk and branches bearing leaves or needles, Wood, Plant, Arboreal
+Beautiful: Adjective, Pleasing the senses or mind in a delightful way, Pretty, Attractive, Exquisite
+Mountain: Noun, A large natural elevation of the earth's surface, Hill, Peak, Prominence
+Jump: Verb, A movement where one propels oneself upwards using one's legs, typically leaving the ground momentarily, Hop, Leap, Vault
+Sky: Noun, The atmosphere seen from the Earth's surface, Heavens, Firmament, Empyrean
+Run: Verb, To move swiftly on foot, Jog, Sprint, Gallop
+Swim: Verb, To move through water by propelling oneself with one's limbs, Glide, Paddle, Dive
+Dance: Verb, A dance is a series of rhythmic movements performed to music or in a specific pattern - routine - or style, Activity, Waltz, Pirouette
+Soft: Adjective, Easily pressed - bent - or cut, Malleable, Tender, Pliable
+Sing: Verb, To produce musical sounds with the voice, Vocals, Perform, Warble
+Cloud: Noun, A visible mass of condensed water vapor floating in the atmosphere, Mist, Haze, Nebula
+Ocean: Noun, A vast expanse of salt water that covers most of our planet's surface, Sea, Vast body of water, Pelagic
+Happy: Adjective, A feeling of pleasure or contentment, Joyful, Content, Blissful

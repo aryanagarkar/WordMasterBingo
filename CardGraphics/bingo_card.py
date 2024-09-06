@@ -3,33 +3,24 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QWidget
 from PySide6.QtGui import QPainter, QPen, QBrush, QColor, QFont, QImage
 from PySide6.QtPrintSupport import QPrinter
 from PySide6.QtCore import Qt
-from Word import word
+import random
+from utils import Utils
+from word import Word
 
 # Color key
 color_key = {
-    'noun': 'lightblue',
-    'verb': 'lightpink',
-    'adjective': 'lightgreen'
+    'Noun': 'lightblue',
+    'Verb': 'lightpink',
+    'Adjective': 'lightgreen'
 }
 
-words = [
-    word("Play", "verb", "engage in activity for enjoyment and recreation", "have fun", "entertain", "frolic"),
-    word("Sky", "noun", "the region of the atmosphere and outer space seen from the Earth", "heavens", "firmament", "vault of heaven"),
-    word("Colorful", "adjective", "having a lot of different bright colors", "vibrant", "multicolored", "kaleidoscopic"),
-    word("Happy", "adjective", "feeling or showing pleasure or contentment", "Joyful", "Content", "Blithesome"),
-    word("Tree", "noun", "a tall perennial woody plant, having a single main stem or trunk and usually bearing branches and leaves", "Plant", "Flora", "Arboreal"),
-    word("Run", "verb", "to move swiftly on foot", "jog", "sprint", "gallop"),
-    word("Ocean", "noun", "a large body of saltwater that covers most of the Earth's surface", "Sea", "Blue", "Abyss"),
-    word("Bright", "adjective", "emitting or reflecting a lot of light", "radiant", "luminous", "resplendent"),
-    word("Jump", "verb", "to move suddenly off the ground", "Hop", "Leap", "Vault"),
-    word("Mountain", "noun", "a large natural elevation of the earth's surface rising abruptly from the surrounding level", "hill", "peak", "alp"),
-    word("Sing", "verb", "produce musical sounds with the voice", "Warble", "Croon", "Trill"),
-    word("Dance", "verb", "move rhythmically to music", "Twirl", "Groove", "Pirouette"),
-    word("Cloud", "noun", "a visible mass of condensed water vapor floating in the atmosphere", "mist", "cumulus", "nebula"),
-    word("Beautiful", "adjective", "pleasing the senses or mind in a delightful way", "Lovely", "Attractive", "Exquisite"),
-    word("Swim", "verb", "to move through water by moving the body using the limbs", "Splash", "Paddle", "Glide"),
-    word("Soft", "adjective", "not hard or firm", "Gentle", "Supple", "Pliable")
-]
+# Global variable for words
+words = []
+
+def load_words(file_path):
+        global words 
+        words = Utils.parse_file(file_path)
+        random.shuffle(words)
 
 class GridWindow(QMainWindow):
     def __init__(self, grid_size=70, rows=6, cols=4):
@@ -118,6 +109,9 @@ class GridWindow(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    
+    load_words("../WordAndDefinitionGenerator/OpenAIIntegration/WordDefinitionsAndSynonyms.txt")
+
     window = GridWindow()
     window.show()
     sys.exit(app.exec())

@@ -34,7 +34,7 @@ public class Main {
             for (String s : wordsList) {
                 String response = MeaningAndSynonymFetcher.getDefinitions(s);
                 System.out.println(i++ + " " + s);
-                writer.write(i + ". " + s + ": " + response + "\n");
+                writer.write(s + ": " + response + "\n");
             }
             writer.close();
 

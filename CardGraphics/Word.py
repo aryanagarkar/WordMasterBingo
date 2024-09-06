@@ -1,4 +1,4 @@
-class word:
+class Word:
     def __init__ (self, word, part_of_speech, definition, easy, medium, hard):
         self.__word = word
         self.__part_of_speech = part_of_speech
