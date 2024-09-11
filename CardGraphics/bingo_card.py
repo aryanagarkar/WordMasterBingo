@@ -14,19 +14,12 @@ color_key = {
     'Adjective': 'lightgreen'
 }
 
-# Global variable for words
-words = []
-
-def load_words(file_path):
-        global words 
-        words = Utils.parse_file(file_path)
-        random.shuffle(words)
-
 class GridWindow(QMainWindow):
-    def __init__(self, grid_size=70, rows=6, cols=4):
+    def __init__(self, words, grid_size=70, rows=6, cols=4):
         super().__init__()
         self.setWindowTitle("4x6 Grid Example")
 
+        self.words = words
         self.grid_size = grid_size
         self.rows = rows
         self.cols = cols
@@ -102,7 +95,7 @@ class GridWindow(QMainWindow):
         for row in range(self.rows - 2):  # 4 rows (excluding top merged rows)
             for col in range(self.cols):  # 4 columns
                 index = row * 4 + col
-                word_obj = words[index]
+                word_obj = self.words[index]
                 
                 word = word_obj.get_word()
                 pos = word_obj.get_part_of_speech()
@@ -122,8 +115,8 @@ class GridWindow(QMainWindow):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     
-    load_words("../WordAndDefinitionGenerator/OpenAIIntegration/WordDefinitionsAndSynonyms.txt")
+    Utils.initialize("../WordAndDefinitionGenerator/OpenAIIntegration/WordDefinitionsAndSynonyms.txt")
 
-    window = GridWindow()
+    window = GridWindow(Utils.get_words())
     window.show()
     sys.exit(app.exec())
