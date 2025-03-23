@@ -46,9 +46,8 @@ class GridWindow(QMainWindow):
         # Calculate offsets to center the grid within the window
         offset_x = (self.width() - self.grid_width) // 2
         offset_y = (self.height() - self.grid_height) // 2
-
-        #print(f"selfWidth: {self.width()}, selfHieght: {self.height()}, gridWidth: {self.grid_width}, gridHeight: {self.grid_height}")
-
+        
+        # Draw horizontal lines
         for x in range(0, (self.cols + 1) * self.grid_size, self.grid_size):
             for y in range(0, (self.rows + 1) * self.grid_size, self.grid_size):
                 if y == 0 or y > self.grid_size:
