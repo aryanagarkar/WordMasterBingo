@@ -53,12 +53,12 @@ class GridWindow(QMainWindow):
                 if y == 0 or y > self.grid_size:
                     painter.drawLine(offset_x, offset_y + y, offset_x + self.grid_width, offset_y + y)
                # Draw vertical lines:
-                if x == 0 or x == (self.grid_width):  # Full lines at the borders
+                if x == 0 or x == (self.grid_width):  # Full lines at the borders.
                     painter.drawLine(offset_x + x, offset_y, offset_x + x, offset_y + self.grid_height)
-                elif y >= 2 * self.grid_size:  # Skip vertical lines in the merged area
+                elif y >= 2 * self.grid_size:  # Skip vertical lines in the merged area.
                     painter.drawLine(offset_x + x, offset_y + 2 * self.grid_size, offset_x + x, offset_y + self.grid_height)
 
-        # Calculate the width of the top section and space for the logo and color key
+        # Calculate the width of the top section and space for the logo and color key.
         top_section_rows = 2
         top_section_of_grid_height = self.grid_size * top_section_rows 
         section_width = self.grid_width // 2
