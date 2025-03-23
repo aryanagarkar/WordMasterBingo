@@ -7,17 +7,26 @@ import random
 from utils import Utils
 from word import Word
 
+# Level key
+level_key = {
+    'Easy': 'green',
+    'Medium': 'yellow',
+    'Hard': 'red'
+}
+
 # Color key
 color_key = {
     'Noun': 'lightblue',
-    'Verb': 'lightpink',
-    'Adjective': 'lightgreen'
+    'Verb': 'pink',
+    'Adjective': 'orange'
 }
+
+# Demo for medium words:
 
 class GridWindow(QMainWindow):
     def __init__(self, words, grid_size=70, rows=6, cols=4):
         super().__init__()
-        self.setWindowTitle("4x6 Grid Example")
+        self.setWindowTitle("4x6 Bingo Card Grid")
 
         self.words = words
         self.grid_size = grid_size
@@ -29,7 +38,7 @@ class GridWindow(QMainWindow):
         self.setGeometry(100, 100, self.grid_width, self.grid_height)
 
         pal = self.palette()
-        pal.setColor(self.backgroundRole(), Qt.white)
+        pal.setColor(self.backgroundRole(), Qt.black)
         self.setPalette(pal)
         self.setAutoFillBackground(True)
 
@@ -39,25 +48,11 @@ class GridWindow(QMainWindow):
         word_size = 15
 
         painter = QPainter(self)
-        
-        # Set pen color and style for the grid lines
-        painter.setPen(QPen(Qt.black, 1, Qt.SolidLine))
 
         # Calculate offsets to center the grid within the window
         offset_x = (self.width() - self.grid_width) // 2
         offset_y = (self.height() - self.grid_height) // 2
         
-        # Draw horizontal lines:
-        for x in range(0, (self.cols + 1) * self.grid_size, self.grid_size):
-            for y in range(0, (self.rows + 1) * self.grid_size, self.grid_size):
-                if y == 0 or y > self.grid_size:
-                    painter.drawLine(offset_x, offset_y + y, offset_x + self.grid_width, offset_y + y)
-               # Draw vertical lines:
-                if x == 0 or x == (self.grid_width):  # Full lines at the borders.
-                    painter.drawLine(offset_x + x, offset_y, offset_x + x, offset_y + self.grid_height)
-                elif y >= 2 * self.grid_size:  # Skip vertical lines in the merged area.
-                    painter.drawLine(offset_x + x, offset_y + 2 * self.grid_size, offset_x + x, offset_y + self.grid_height)
-
         # Calculate the width of the top section and space for the logo and color key.
         top_section_rows = 2
         top_section_of_grid_height = self.grid_size * top_section_rows 
@@ -65,7 +60,7 @@ class GridWindow(QMainWindow):
         key_x = section_width + offset_x
 
         # Draw the logo placeholder text
-        painter.setPen(Qt.black)
+        painter.setPen(Qt.white)
         painter.setFont(QFont('Arial', logo_size))
         logo_rect = QRect(offset_x, offset_y, section_width, top_section_of_grid_height)
         painter.drawText(logo_rect, Qt.AlignCenter, 'Logo \n Placeholder')
@@ -83,11 +78,12 @@ class GridWindow(QMainWindow):
             item_y = start_y + index * 20
 
             # Draw the color rectangle
+            painter.setPen(Qt.NoPen)
             painter.setBrush(QBrush(QColor(color)))
             painter.drawRect(color_key_rect.x() + 10, item_y, 15, 15)
 
             # Draw the part of speech label
-            painter.setPen(Qt.black)
+            painter.setPen(Qt.white)
             painter.drawText(color_key_rect.x() + 30, item_y + 12, part_of_speech)
             
         # Draw the words in the grid cells
@@ -109,6 +105,20 @@ class GridWindow(QMainWindow):
                 painter.setFont(QFont('Arial', word_size))
                 text_rect = painter.boundingRect(offset_x + col * self.grid_size, offset_y + (row + 2) * self.grid_size, self.grid_size, self.grid_size, Qt.AlignCenter, word)
                 painter.drawText(text_rect, Qt.AlignCenter, word)
+
+        # Draw horizontal and vertical grid lines (yellow) FIRST:
+        painter.setPen(QPen(QColor(251, 220, 106), 3, Qt.SolidLine))
+
+        # Draw grid lines:
+        for x in range(0, (self.cols + 1) * self.grid_size, self.grid_size):
+            for y in range(0, (self.rows + 1) * self.grid_size, self.grid_size):
+                if y == 0 or y > self.grid_size:
+                    painter.drawLine(offset_x, offset_y + y, offset_x + self.grid_width, offset_y + y)
+               # Draw vertical lines:
+                if x == 0 or x == (self.grid_width):  # Full lines at the borders.
+                    painter.drawLine(offset_x + x, offset_y, offset_x + x, offset_y + self.grid_height)
+                elif y >= 2 * self.grid_size:  # Skip vertical lines in the merged area.
+                    painter.drawLine(offset_x + x, offset_y + 2 * self.grid_size, offset_x + x, offset_y + self.grid_height)
 
 
 if __name__ == "__main__":
