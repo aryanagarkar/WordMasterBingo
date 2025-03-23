@@ -47,12 +47,12 @@ class GridWindow(QMainWindow):
         offset_x = (self.width() - self.grid_width) // 2
         offset_y = (self.height() - self.grid_height) // 2
         
-        # Draw horizontal lines
+        # Draw horizontal lines:
         for x in range(0, (self.cols + 1) * self.grid_size, self.grid_size):
             for y in range(0, (self.rows + 1) * self.grid_size, self.grid_size):
                 if y == 0 or y > self.grid_size:
                     painter.drawLine(offset_x, offset_y + y, offset_x + self.grid_width, offset_y + y)
-               # Draw vertical lines
+               # Draw vertical lines:
                 if x == 0 or x == (self.grid_width):  # Full lines at the borders
                     painter.drawLine(offset_x + x, offset_y, offset_x + x, offset_y + self.grid_height)
                 elif y >= 2 * self.grid_size:  # Skip vertical lines in the merged area
