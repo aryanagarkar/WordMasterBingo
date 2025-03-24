@@ -10,9 +10,9 @@ from word import Word
 words = []
 
 class GridWindow(QMainWindow):
-    def __init__(self, words, grid_size=70, rows=5, cols=4):
+    def __init__(self, words, grid_size=70, rows=6, cols=4):
         super().__init__()
-        self.setWindowTitle("Another Card with Two Sides")
+        self.setWindowTitle("Word Card")
 
         self.grid_size = grid_size
         self.words = words
@@ -22,14 +22,12 @@ class GridWindow(QMainWindow):
         self.grid_width = self.cols * self.grid_size
         self.grid_height = self.rows * self.grid_size
         self.setGeometry(100, 100, self.grid_width, self.grid_height)
-
-        self.offset_x = (self.width() - self.grid_width) // 2
-        self.offset_y = (self.height() - self.grid_height) // 2
+       
         self.font_size = 20
         self.paddingHeight = 5
         self.paddingWidth = 10
         self.border_thickness = 3
-        self.top_section_rows = 2
+        self.top_section_rows = 2.5
         self.top_section_of_grid_height = self.grid_size * self.top_section_rows
 
         self.first_word = self.words[0]
@@ -65,7 +63,14 @@ class GridWindow(QMainWindow):
         else:
             self.draw_back_side(painter)
 
+    def resizeEvent(self, event):
+        self.offset_x = (self.width() - self.grid_width) // 2
+        self.offset_y = (self.height() - self.grid_height) // 2
+        self.repaint()
+
     def draw_common_elements(self, painter):
+        painter.setRenderHint(QPainter.Antialiasing)
+
         # Yellow color for border
         painter.setPen(QPen(QColor(251, 220, 106), self.border_thickness, Qt.SolidLine)) 
 
@@ -160,11 +165,9 @@ if __name__ == "__main__":
     word_card_front.set_side('front')  # Set side to 'front'
     word_card_front.show()
 
-    """
     # Create the back side of the card
     word_card_back = GridWindow(Utils.get_words())
     word_card_back.set_side('back')  # Set side to 'back'
     word_card_back.show()
-    """
-
+    
     sys.exit(app.exec())
