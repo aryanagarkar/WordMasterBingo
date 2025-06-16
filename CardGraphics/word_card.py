@@ -7,15 +7,13 @@ from word import Word
 
 # Demo with first word.
 
-words = []
-
 class GridWindow(QMainWindow):
-    def __init__(self, words, grid_size=70, rows=6, cols=4):
+    def __init__(self, word, grid_size=60, rows=6, cols=4):
         super().__init__()
         self.setWindowTitle("Word Card")
 
         self.grid_size = grid_size
-        self.words = words
+        self.word = word
         self.rows = rows
         self.cols = cols
 
@@ -23,21 +21,18 @@ class GridWindow(QMainWindow):
         self.grid_height = self.rows * self.grid_size
         self.setGeometry(100, 100, self.grid_width, self.grid_height)
        
-        self.font_size = 20
-        self.paddingHeight = 5
-        self.paddingWidth = 10
-        self.border_thickness = 3
-        self.top_section_rows = 2.5
-        self.top_section_of_grid_height = self.grid_size * self.top_section_rows
+        self.definition_font_size = 25
+        self.word_font_size = 20
+        self.padding_height = 5
+        self.padding_width = 10
+        self.border_thickness = 2
+        self.definition_margin_top = 20
 
-        self.first_word = self.words[0]
-        self.definition_first_word = self.first_word.get_definitions()
-        self.pos_first_word = self.first_word.get_part_of_speech()
-        self.easy_synonym = self.first_word.get_easy_word()
-        self.medium_synonym = self.first_word.get_word()
-        self.hard_synonym = self.first_word.get_hard_word()
+        self.definition = self.word.get_definitions()
+        self.easy_synonym = self.word.get_easy_word()
+        self.medium_synonym = self.word.get_word()
+        self.hard_synonym = self.word.get_hard_word()
 
-        # QTextOptions for text wrapping and alignment
         self.top_section_text_option = QTextOption()
         self.top_section_text_option.setWrapMode(QTextOption.WordWrap)
         self.top_section_text_option.setAlignment(Qt.AlignCenter | Qt.AlignHCenter)
@@ -46,9 +41,9 @@ class GridWindow(QMainWindow):
         self.bottom_section_text_option.setWrapMode(QTextOption.WordWrap)
         self.bottom_section_text_option.setAlignment(Qt.AlignCenter)
 
-        # Font
-        self.font = QFont('Arial', self.font_size)
-        self.font.setBold(True)  # Set the font to bold
+        self.definition_font = QFont('Arbutus Slab', self.definition_font_size)  # Font for definition
+        self.word_font = QFont('Barlow', self.word_font_size)  # Font for words
+        self.word_font.setBold(True)  # Make word font bold
 
         pal = self.palette()
         pal.setColor(self.backgroundRole(), Qt.black)
@@ -71,86 +66,91 @@ class GridWindow(QMainWindow):
     def draw_common_elements(self, painter):
         painter.setRenderHint(QPainter.Antialiasing)
 
-        # Yellow color for border
-        painter.setPen(QPen(QColor(251, 220, 106), self.border_thickness, Qt.SolidLine)) 
+        border_color = QColor(251, 220, 106)
+        border_thickness = self.border_thickness
+        extension = 20  
 
-        for x in range(0, (self.rows + 1) * self.grid_size, self.grid_size):
-            if x == 0 or x == (self.grid_width):  # Full lines at the borders
-                    painter.drawLine(self.offset_x + x, self.offset_y, self.offset_x + x, self.offset_y + self.grid_height)
+        # Draw borders
+        painter.setPen(QPen(border_color, border_thickness))
+        painter.drawLine(self.offset_x - extension, self.offset_y, self.offset_x + self.grid_width + extension, self.offset_y)
+        painter.drawLine(self.offset_x - extension, self.offset_y + self.grid_height, self.offset_x + self.grid_width + extension, self.offset_y + self.grid_height)
+        painter.drawLine(self.offset_x, self.offset_y - extension, self.offset_x, self.offset_y + self.grid_height + extension)
+        painter.drawLine(self.offset_x + self.grid_width, self.offset_y - extension, self.offset_x + self.grid_width, self.offset_y + self.grid_height + extension)
 
-        # Draw horizontal borders (top and bottom)
-        for y in range(0, self.grid_height + 1, self.grid_size):
-            if y == 0 or y == self.grid_height:  # Full lines at the top and bottom
-                painter.drawLine(self.offset_x, self.offset_y + y, self.offset_x + self.grid_width, self.offset_y + y)
+        # Definition text area
+        definition_margin_sides = 10
+        definition_height = int(self.grid_height * 0.35)
+        text_rect = QRect(
+            self.offset_x + definition_margin_sides,
+            self.offset_y + self.definition_margin_top,
+            self.grid_width - 2 * definition_margin_sides,
+            definition_height
+        )
 
-        # Create rectangles for the part of speech and definition
-        text_rect = QRect(self.offset_x + self.border_thickness + self.paddingHeight,
-                    self.offset_y + self.border_thickness + self.paddingHeight, 
-                    self.grid_width - 2 * (self.paddingHeight + self.border_thickness), 
-                    self.top_section_of_grid_height - 2 * (self.paddingHeight + self.border_thickness))
+        painter.setFont(self.definition_font)
+        painter.setPen(border_color)
+        painter.drawText(text_rect, Qt.AlignTop | Qt.AlignHCenter | Qt.TextWordWrap, f"{self.definition}")
 
-        # Draw the word’s definition and part of speech in the top section
-        painter.setFont(self.font)  
-
-        # Combine part of speech and definition into a single string
-        text = f"Definition: {self.definition_first_word}\nPart of Speech: {self.pos_first_word}"
-
-        # Draw the combined text
-        painter.drawText(text_rect, text, self.top_section_text_option)
-
-    # Draws the front side of the card.
     def draw_front_side(self, painter):
         self.draw_common_elements(painter)
 
-        painter.setPen(QPen(Qt.black))  # Black text
-        painter.setBrush(QBrush(QColor(251, 220, 106)))  # Yellow background for the rectangle
+        # Word box settings
+        box_color = QColor(251, 220, 106)
+        box_border_color = QColor(0, 0, 0)
+        box_border_thickness = 2
+        box_margin_sides = 10
+        box_height = 60 
+        box_gap = 5      # Gap between word boxes
+        num_boxes = 3
+        bottom_margin = 10
 
-        # Calculate the height for each of the remaining three sections
-        remaining_sections_height = (self.grid_height - self.top_section_of_grid_height) // 3
+        total_boxes_height = num_boxes * box_height + (num_boxes - 1) * box_gap
+        first_box_y = self.offset_y + self.grid_height - bottom_margin - total_boxes_height
+        box_width = self.grid_width - 2 * box_margin_sides
 
-        centered_x = self.offset_x + (self.grid_width - (self.grid_width - 2 * self.paddingWidth)) // 2
+        painter.setFont(self.word_font)
+        painter.setPen(QPen(box_border_color, box_border_thickness))
+        painter.setBrush(QBrush(box_color))
 
-        centered_y_first = self.offset_y + self.top_section_of_grid_height + self.paddingHeight  # Just after the top section.   
+        words = [self.easy_synonym, self.medium_synonym, self.hard_synonym]
+        for i, word in enumerate(words):
+            y = first_box_y + i * (box_height + box_gap)
+            rect = QRect(self.offset_x + box_margin_sides, y, box_width, box_height)
+            painter.setPen(QPen(box_border_color, box_border_thickness))
+            painter.setBrush(QBrush(box_color))
+            painter.drawRect(rect)
 
-        centered_y_second = centered_y_first + remaining_sections_height  # Just after the middle section.
+            painter.setPen(QPen(Qt.black))
+            painter.drawText(rect, Qt.AlignCenter, word)
 
-        centered_y_third = centered_y_second + remaining_sections_height  # Just after the last section.
-
-        easy_rect = QRect(centered_x, centered_y_first, 
-        self.grid_width - 2 * self.paddingWidth, remaining_sections_height - 2 * self.paddingHeight)
-        painter.drawRect(easy_rect)  
-        painter.drawText(easy_rect, f"{self.easy_synonym}", self.bottom_section_text_option) 
-
-        medium_rect = QRect(centered_x, centered_y_second,
-        self.grid_width - 2 * self.paddingWidth, remaining_sections_height - 2 * self.paddingHeight)
-        painter.drawRect(medium_rect)  
-        painter.drawText(medium_rect, f"{self.medium_synonym}", self.bottom_section_text_option) 
-
-        hard_rect = QRect(centered_x, centered_y_third, 
-        self.grid_width - 2 * self.paddingWidth, remaining_sections_height - 2 * self.paddingHeight)
-        painter.drawRect(hard_rect)  
-        painter.drawText(hard_rect, f"{self.hard_synonym}", self.bottom_section_text_option) 
-
-    # Draws the back side of the card
     def draw_back_side(self, painter):
         self.draw_common_elements(painter)
 
-        # Create a rectangle for the image placeholder
-        image_rect = QRect(self.offset_x + self.border_thickness + self.paddingHeight,
-                        self.offset_y + self.border_thickness + self.top_section_of_grid_height + self.paddingHeight,
-                        self.grid_width - 2 * (self.paddingHeight + self.border_thickness),
-                        self.top_section_of_grid_height - 2 * (self.paddingHeight + self.border_thickness))
+        # Image placeholder settings
+        definition_margin_sides = 10
+        definition_height = int(self.grid_height * 0.35)
+        image_margin_top = self.offset_y + self.definition_margin_top + definition_height
+        image_margin_sides = 10
+        image_margin_bottom = 10
 
-        # Draw the image placeholder rectangle
+        image_rect = QRect(
+            self.offset_x + image_margin_sides,
+            image_margin_top,
+            self.grid_width - 2 * image_margin_sides,
+            self.grid_height - (image_margin_top - self.offset_y) - image_margin_bottom
+        )
+
         painter.setPen(QPen(Qt.black))  # Black border for the image placeholder
         painter.setBrush(QBrush(QColor(200, 200, 200)))  # Light gray background for the placeholder
         painter.drawRect(image_rect)  # Draw the rectangle
 
         # Draw the placeholder text inside the rectangle
+        placeholder_font = QFont('Barlow', 25)
+        placeholder_font.setBold(True)
+        painter.setFont(placeholder_font)
         painter.setPen(QPen(Qt.black))  # Black text for placeholder
         painter.drawText(image_rect, Qt.AlignCenter, "Image Placeholder")
 
-    # Set the side to be drawn (either 'front' or 'back').
     def set_side(self, side):
         self.side = side
         self.repaint()
@@ -160,14 +160,19 @@ if __name__ == "__main__":
 
     Utils.initialize("../WordAndDefinitionGenerator/OpenAIIntegration/WordDefinitionsAndSynonyms.txt")
 
-    # Create the front side of the card
-    word_card_front = GridWindow(Utils.get_words())
-    word_card_front.set_side('front')  # Set side to 'front'
-    word_card_front.show()
+    words = Utils.get_words()
 
-    # Create the back side of the card
-    word_card_back = GridWindow(Utils.get_words())
-    word_card_back.set_side('back')  # Set side to 'back'
-    word_card_back.show()
-    
+    for i, word in enumerate(words):
+        if(i == 1):
+            word_card_front = GridWindow(word)
+            word_card_front.set_side('front')
+            word_card_front.show()
+
+            word_card_back = GridWindow(word)
+            word_card_back.set_side('back')  # Set side to 'back'
+            word_card_back.show()
+
+        # Show the back after a delay
+        # QTimer.singleShot(i * 1000 + 500, lambda back=word_card_back: back.show())  
+
     sys.exit(app.exec())

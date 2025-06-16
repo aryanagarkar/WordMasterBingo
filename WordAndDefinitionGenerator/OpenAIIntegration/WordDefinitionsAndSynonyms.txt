@@ -1,16 +1,15 @@
-Bright: Adjective, Quality of being full of light, Shining, Radiant, Luminous
+Radiant: Adjective, Quality of being full of light, Shining, Radiant, Luminous
 Colorful: Adjective, Vivid and bright in color, Vibrant, Colorful, Resplendent
-Play: Verb, Engage in activity for enjoyment and recreation, Have fun, Participate, Amuse
-Tree: Noun, A perennial tall woody plant with a main trunk and branches bearing leaves or needles, Wood, Plant, Arboreal
-Beautiful: Adjective, Pleasing the senses or mind in a delightful way, Pretty, Attractive, Exquisite
-Mountain: Noun, A large natural elevation of the earth's surface, Hill, Peak, Prominence
-Jump: Verb, A movement where one propels oneself upwards using one's legs, typically leaving the ground momentarily, Hop, Leap, Vault
-Sky: Noun, The atmosphere seen from the Earth's surface, Heavens, Firmament, Empyrean
-Run: Verb, To move swiftly on foot, Jog, Sprint, Gallop
-Swim: Verb, To move through water by propelling oneself with one's limbs, Glide, Paddle, Dive
-Dance: Verb, A dance is a series of rhythmic movements performed to music or in a specific pattern - routine - or style, Activity, Waltz, Pirouette
-Soft: Adjective, Easily pressed - bent - or cut, Malleable, Tender, Pliable
-Sing: Verb, To produce musical sounds with the voice, Vocals, Perform, Warble
-Cloud: Noun, A visible mass of condensed water vapor floating in the atmosphere, Mist, Haze, Nebula
-Ocean: Noun, A vast expanse of salt water that covers most of our planet's surface, Sea, Vast body of water, Pelagic
-Happy: Adjective, A feeling of pleasure or contentment, Joyful, Content, Blissful
+Amuse: Verb, Engage in activity for enjoyment and recreation, Play, Amuse, Frolic
+Tree: Noun, A perennial tall woody plant with a main trunk and branches bearing leaves or needles, Plant, Tree, Sapling
+Beautiful: Adjective, Pleasing the senses or mind in a delightful way; attractive, Pretty, Beautiful, Exquisite
+Mountain: Noun, A large natural elevation of the earth's surface, Hill, Mountain, Peak
+Leap: Verb, A movement where one propels oneself upwards using one's legs - typically leaving the ground momentarily, Jump, Leap, Vault
+Run: Verb, To move swiftly on foot; jog, Run, Sprint, Gallop
+Swim: Verb, To move through water by propelling oneself with one's limbs, Glide, Swim, Dive
+Waltz: Verb, A series of rhythmic movements performed to music or in a specific pattern - routine - or style, Dance, Waltz, Pirouette
+Malleable: Adjective, Easily pressed - bent - or cut, Soft, Malleable, Pliable
+Perform: Verb, To produce musical sounds with the voice, Sing, Perform, Serenade
+Haze: Noun, A visible mass of condensed water vapor floating in the atmosphere, Mist, Haze, Nebula
+Ocean: Noun, A vast expanse of salt water that covers most of our planet's surface, Sea, Ocean, Pelagic
+Joyful: Adjective, A feeling of pleasure or contentment, Happy, Joyful, Blissful
