@@ -18,6 +18,10 @@ public class OpenAIClient {
     private static final String IMAGE_COMPLETION_URI = "v1/images/generations";
     private static final String API_KEY = System.getenv("API_KEY");
 
+    static {
+        System.out.println("API_KEY in Java: " + API_KEY);
+    }
+
     private static final HttpClient httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
             .build();
@@ -80,11 +84,10 @@ public class OpenAIClient {
                 .build();
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        System.out.println("HTTP status: " + response.statusCode());
+        System.out.println("HTTP body: " + response.body());
         if (response.statusCode() == 200) {
-            //JsonNode responseNode = objectMapper.readTree(response.body());
-            //System.out.println(response.body());
             return response.body();
-            //return response.body();
         } else {
             throw new RuntimeException("Failed: HTTP error code : " + response.statusCode());
         }

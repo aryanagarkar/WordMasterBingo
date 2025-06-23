@@ -1,15 +1,20 @@
-Radiant: Adjective, Quality of being full of light, Shining, Radiant, Luminous
-Colorful: Adjective, Vivid and bright in color, Vibrant, Colorful, Resplendent
-Amuse: Verb, Engage in activity for enjoyment and recreation, Play, Amuse, Frolic
-Tree: Noun, A perennial tall woody plant with a main trunk and branches bearing leaves or needles, Plant, Tree, Sapling
-Beautiful: Adjective, Pleasing the senses or mind in a delightful way; attractive, Pretty, Beautiful, Exquisite
-Mountain: Noun, A large natural elevation of the earth's surface, Hill, Mountain, Peak
-Leap: Verb, A movement where one propels oneself upwards using one's legs - typically leaving the ground momentarily, Jump, Leap, Vault
-Run: Verb, To move swiftly on foot; jog, Run, Sprint, Gallop
-Swim: Verb, To move through water by propelling oneself with one's limbs, Glide, Swim, Dive
-Waltz: Verb, A series of rhythmic movements performed to music or in a specific pattern - routine - or style, Dance, Waltz, Pirouette
-Malleable: Adjective, Easily pressed - bent - or cut, Soft, Malleable, Pliable
-Perform: Verb, To produce musical sounds with the voice, Sing, Perform, Serenade
-Haze: Noun, A visible mass of condensed water vapor floating in the atmosphere, Mist, Haze, Nebula
-Ocean: Noun, A vast expanse of salt water that covers most of our planet's surface, Sea, Ocean, Pelagic
-Joyful: Adjective, A feeling of pleasure or contentment, Happy, Joyful, Blissful
+Absolution: Release from guilt or punishment, Forgiveness, Absolution, Exoneration
+Abdicate: To give up power or a position, Quit, Abdicate, Renounce
+Ballistic: Extremely angry, Angry, Ballistic, Enraged
+Conundrum: A confusing problem or question, Puzzle, Conundrum, Enigma
+Debacle: A sudden and complete failure, Disaster, Debacle, Fiasco
+Ecclesiastic: Related to the church or clergy, Priestly, Ecclesiastic, Sacerdotal
+Exonym: A name for a place used by outsiders, Foreign Name, Exonym, Xenonym
+Edifices: Large or impressive buildings, Buildings, Edifices, Constructions
+Eloquent: Fluent or persuasive in speaking, Clear, Eloquent, Articulate
+Galvanic: Sudden and dramatic like an electric shock, Shocking, Galvanic, Convulsive
+Hamartia: A tragic flaw leading to downfall, Flaw, Hamartia, Peccadillo
+Idolatrous: Showing extreme or blind admiration, Worshipful, Idolatrous, Iconolatrous
+Ignoramus: A person who lacks knowledge, Fool, Ignoramus, Simpleton
+Jocular: Joking or playful, Funny, Jocular, Facetious
+Meticulous: Extremely careful and precise, Careful, Meticulous, Painstaking
+Obsequious: Overly eager to please or obey, Submissive, Obsequious, Sycophantic
+Pallid: Lacking healthy color - usually from illness or fear, Pale, Pallid, Wan
+Resilient: Able to recover quickly, Tough, Resilient, Buoyant
+Ubiquitous: Found everywhere, Common, Ubiquitous, Omnipresent
+Vindictive: Having a strong desire for revenge, Spiteful, Vindictive, Retaliatory

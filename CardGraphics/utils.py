@@ -1,5 +1,6 @@
 import random
 from word import Word
+from difficulty_level import DifficultyLevel
 
 class Utils:
     words = []
@@ -24,6 +25,23 @@ class Utils:
         return Utils.words
 
     @staticmethod
+    def get_words_by_difficulty(difficulty: DifficultyLevel):
+        """Returns a list of words for the specified difficulty level."""
+        
+        words = []
+        for word_obj in Utils.words:
+            if difficulty == DifficultyLevel.EASY:
+                word = word_obj.get_easy_word()
+            elif difficulty == DifficultyLevel.MEDIUM:
+                word = word_obj.get_medium_word()
+            elif difficulty == DifficultyLevel.HARD:
+                word = word_obj.get_hard_word()
+            
+            if word != '-':
+                words.append(word)
+        return words
+
+    @staticmethod
     def parse_file(file_path):
         words = []
 
@@ -34,13 +52,18 @@ class Utils:
                 main_word = word_part.strip()
 
                 attributes = remaining_attributes.split(',')
-                part_of_speech = attributes[0].strip()
-                definition = attributes[1].strip()
-                easy = attributes[2].strip()
-                medium = attributes[3].strip()
-                hard = attributes[4].strip()
+                definition = attributes[0].strip()
+                easy = attributes[1].strip()
+                medium = attributes[2].strip()
+                hard = attributes[3].strip()
 
-                word_obj = Word(main_word, part_of_speech, definition, easy, medium, hard)
+                word_obj = Word(main_word, definition, easy, medium, hard)
                 words.append(word_obj)
 
         return words
+
+    @staticmethod
+    def clear():
+        """Clears the words list and resets the initialization flag, allowing re-initialization."""
+        Utils.words = []
+        Utils._initialized = False
