@@ -2,18 +2,19 @@ import sys
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget
 from PySide6.QtGui import QPainter, QPen, QBrush, QColor, QFont, QImage, QPixmap, QPageSize, QPdfWriter
 from PySide6.QtPrintSupport import QPrinter
-from PySide6.QtCore import Qt, QRect, QRectF
+from PySide6.QtCore import Qt, QRect, QRectF, QSizeF, QSize
 import random
 from utils import Utils
 from word import Word
-from PySide6.QtSvg import QSvgRenderer
+from PySide6.QtSvg import QSvgRenderer, QSvgGenerator
 from difficulty_level import DifficultyLevel
+import re
 
 WORDS_FILE = "../WordAndDefinitionGenerator/OpenAIIntegration/WordDefinitionsAndSynonyms.txt"
 
 # Font sizes.
 TITLE_FONT_SIZE = 25
-WORD_FONT_SIZE = 15
+WORD_FONT_SIZE = 12
 
 # Colors.
 GREEN = QColor(126, 217, 87)
@@ -44,8 +45,9 @@ class GridWindow(QMainWindow):
         self.rows = rows
         self.cols = cols
 
-        self.grid_width = self.cols * self.grid_size
-        self.grid_height = self.rows * self.grid_size
+        # Set exact card size: 4x5 inches at 96 DPI
+        self.grid_width = 384
+        self.grid_height = 480
         self.setGeometry(100, 100, self.grid_width, self.grid_height)
 
         # Calculate offsets to center the grid within the window
@@ -75,6 +77,25 @@ class GridWindow(QMainWindow):
         self.offset_y = (self.height() - self.grid_height) // 2
         self.repaint()
 
+    def wrap_text(self, painter, text, max_width):
+        """
+        Splits text into lines so that each line fits within max_width using the current font.
+        Returns a list of lines.
+        """
+        words = text.split()
+        if not words:
+            return [""]
+        lines = []
+        current_line = words[0]
+        for word in words[1:]:
+            test_line = current_line + ' ' + word
+            if painter.fontMetrics().horizontalAdvance(test_line) <= max_width:
+                current_line = test_line
+            else:
+                lines.append(current_line)
+                current_line = word
+        lines.append(current_line)
+        return lines
 
     def draw_front_side(self, painter, ox=0, oy=0):
         painter.setRenderHint(QPainter.Antialiasing)
@@ -118,11 +139,22 @@ class GridWindow(QMainWindow):
                 painter.setBrush(QBrush(Qt.black))
                 painter.drawRect(ox + col * self.grid_size, oy + row * self.grid_size, self.grid_size, self.grid_size)
 
-                # Draw the word in the cell
+                # Draw the word in the cell, wrapped if needed
                 painter.setPen(Qt.white)
                 painter.setFont(QFont('Barlow', WORD_FONT_SIZE))
-                text_rect = painter.boundingRect(ox + col * self.grid_size, oy + row * self.grid_size, self.grid_size, self.grid_size, Qt.AlignCenter, word)
-                painter.drawText(text_rect, Qt.AlignCenter, word)
+                cell_x = ox + col * self.grid_size
+                cell_y = oy + row * self.grid_size
+                cell_w = self.grid_size
+                cell_h = self.grid_size
+                lines = self.wrap_text(painter, word, cell_w - 8)  # 8px padding
+                fm = painter.fontMetrics()
+                total_text_height = len(lines) * fm.height()
+                start_y = cell_y + (cell_h - total_text_height) // 2 + fm.ascent()
+                for i, line in enumerate(lines):
+                    text_width = fm.horizontalAdvance(line)
+                    line_x = cell_x + (cell_w - text_width) // 2
+                    line_y = start_y + i * fm.height()
+                    painter.drawText(line_x, line_y, line)
 
         # Draw horizontal and vertical grid lines
         painter.setPen(QPen(color, BORDER_THICKNESS, Qt.SolidLine))
@@ -168,16 +200,16 @@ class GridWindow(QMainWindow):
         self.repaint()
 
     def save_as_svg(self, filename, side='front'):
-        # Set SVG canvas size
-        canvas_width, canvas_height = self.grid_width + 40, self.grid_height + 40
-        ox = (canvas_width - self.grid_width) // 2
-        oy = (canvas_height - self.grid_height) // 2
-        from PySide6.QtSvg import QSvgGenerator
-        from PySide6.QtCore import QSize, QRect
+        # SVG canvas size matches the actual card size (4" x 5")
+        canvas_width = self.grid_width
+        canvas_height = self.grid_height
+        ox = 0  # Card starts at origin
+        oy = 0  # Card starts at origin
         generator = QSvgGenerator()
         generator.setFileName(filename)
         generator.setSize(QSize(canvas_width, canvas_height))
         generator.setViewBox(QRect(0, 0, canvas_width, canvas_height))
+        generator.setResolution(96)  # Ensure 96 DPI
         generator.setTitle("Bingo Card")
         generator.setDescription("An SVG drawing created by WordMasterBingo.")
         painter = QPainter(generator)
@@ -190,6 +222,22 @@ class GridWindow(QMainWindow):
         else:
             self.draw_back_side(painter, ox=ox, oy=oy)
         painter.end()
+        patch_svg_physical_size(filename)
+
+def patch_svg_physical_size(filename, width_in="4in", height_in="5in"):
+    with open(filename, "r") as f:
+        lines = f.readlines()
+    for i, line in enumerate(lines):
+        if "<svg" in line:
+            # Remove any existing width/height attributes
+            line = re.sub(r'width="[^"]*"', '', line)
+            line = re.sub(r'height="[^"]*"', '', line)
+            # Add the correct width and height
+            line = line.replace("<svg", f'<svg width="{width_in}" height="{height_in}"', 1)
+            lines[i] = line
+            break
+    with open(filename, "w") as f:
+        f.writelines(lines)
 
 
 if __name__ == "__main__":
@@ -209,25 +257,24 @@ if __name__ == "__main__":
     for difficulty in [DifficultyLevel.EASY, DifficultyLevel.MEDIUM, DifficultyLevel.HARD]:
         word_objs = get_word_objs_by_difficulty(difficulty)
         for i in range(num_cards_per_difficulty):
-            if difficulty == DifficultyLevel.EASY and i == 0
-                if len(word_objs) >= num_words_per_card:
-                    selected_words = random.sample(word_objs, num_words_per_card)
-                else:
-                    selected_words = word_objs * (num_words_per_card // len(word_objs)) + word_objs[:num_words_per_card % len(word_objs)]
-                card_back = GridWindow(selected_words, difficulty=difficulty)
-                card_back.set_side('back')
-                card_back.show()
-                windows.append(card_back)
-                back_svg_path = f"BingoCards/bingo_card_{difficulty.value}_{i}_back.svg"
-                card_back.save_as_svg(back_svg_path, side='back')
-                svg_files.append(back_svg_path)
+            if len(word_objs) >= num_words_per_card:
+                selected_words = random.sample(word_objs, num_words_per_card)
+            else:
+                selected_words = word_objs * (num_words_per_card // len(word_objs)) + word_objs[:num_words_per_card % len(word_objs)]
+            card_back = GridWindow(selected_words, difficulty=difficulty)
+            card_back.set_side('back')
+            card_back.show()
+            windows.append(card_back)
+            back_svg_path = f"BingoCards/bingo_card_{difficulty.value}_{i}_back.svg"
+            card_back.save_as_svg(back_svg_path, side='back')
+            svg_files.append(back_svg_path)
 
-                card_front = GridWindow(selected_words, difficulty=difficulty)
-                card_front.set_side('front')
-                card_front.show()
-                windows.append(card_front)
-                front_svg_path = f"BingoCards/bingo_card_{difficulty.value}_{i}_front.svg"
-                card_front.save_as_svg(front_svg_path, side='front')
-                svg_files.append(front_svg_path)
-        
+            card_front = GridWindow(selected_words, difficulty=difficulty)
+            card_front.set_side('front')
+            card_front.show()
+            windows.append(card_front)
+            front_svg_path = f"BingoCards/bingo_card_{difficulty.value}_{i}_front.svg"
+            card_front.save_as_svg(front_svg_path, side='front')
+            svg_files.append(front_svg_path)
+    
     sys.exit(app.exec())
