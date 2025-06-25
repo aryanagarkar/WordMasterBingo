@@ -8,9 +8,6 @@ from PySide6.QtGui import QPageSize
 from utils import Utils
 from word import Word
 import re
-import subprocess     
-import os           
-from PyPDF2 import PdfMerger
 
 WORDS_FILE = "../WordAndDefinitionGenerator/OpenAIIntegration/WordDefinitionsAndSynonyms.txt"
 

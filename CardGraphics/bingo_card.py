@@ -14,7 +14,7 @@ WORDS_FILE = "../WordAndDefinitionGenerator/OpenAIIntegration/WordDefinitionsAnd
 
 # Font sizes.
 TITLE_FONT_SIZE = 25
-WORD_FONT_SIZE = 12
+WORD_FONT_SIZE = 10
 
 # Colors.
 GREEN = QColor(126, 217, 87)
@@ -26,14 +26,13 @@ BLACK = Qt.black
 BORDER_THICKNESS = 2
 TOP_SECTION_ROWS = 1
 
-# Demo for medium words:
 
 class GridWindow(QMainWindow):
     def __init__(self, words, difficulty=DifficultyLevel.MEDIUM, grid_size=96, rows=5, cols=4):
         super().__init__()
         self.setWindowTitle("4x4 Bingo Card Grid")
-
         self.words = words
+
         # Ensure self.words is exactly 16 items
         if len(self.words) < 16:
             self.words += [Word() for _ in range(16 - len(self.words))]
@@ -54,8 +53,10 @@ class GridWindow(QMainWindow):
         self.top_section_of_grid_height = self.grid_size * TOP_SECTION_ROWS
         self.section_width = self.grid_width // 2
 
-        self.white_logo = "word_wizards_logo_white.svg"
-        self.black_logo = "word_wizards_logo_black.svg"
+        self.logo = "lingo_bingo_logo.svg"
+        self.green_logo = "lingo_bingo_logo_green.svg"
+        self.yellow_logo = "lingo_bingo_logo_yellow.svg"
+        self.red_logo = "lingo_bingo_logo_red.svg"
 
         pal = self.palette()
         pal.setColor(self.backgroundRole(), Qt.black)
@@ -108,14 +109,14 @@ class GridWindow(QMainWindow):
         color = self.get_color()
 
         # Draw the logo on the top of the card.
-        svg_renderer = QSvgRenderer(self.white_logo)
+        svg_renderer = QSvgRenderer(self.logo)
         svg_natural_width = svg_renderer.defaultSize().width()
         svg_natural_height = svg_renderer.defaultSize().height()
-        svg_height = int(self.top_section_of_grid_height * 3.5)
+        
+        # Use a percentage of the top section height for more predictable sizing
+        svg_height = int(self.top_section_of_grid_height * 2.8)  # 150% of top section
         svg_width = int(svg_height * (svg_natural_width / svg_natural_height))
-        if svg_width > self.grid_width:
-            svg_width = self.grid_width
-            svg_height = int(svg_width * (svg_natural_height / svg_natural_width))
+         
         x = ox + (self.grid_width - svg_width) // 2
         y = oy + (self.top_section_of_grid_height - svg_height) // 2
         svg_rect = QRect(x, y, svg_width, svg_height)
@@ -126,6 +127,7 @@ class GridWindow(QMainWindow):
             for col in range(self.cols):  # 4 columns
                 index = (row - 1) * 4 + col
                 word_obj = self.words[index]
+
                 # Select the correct synonym based on difficulty
                 if self.difficulty == DifficultyLevel.EASY:
                     word = word_obj.get_easy_word()
@@ -170,18 +172,31 @@ class GridWindow(QMainWindow):
     def draw_back_side(self, painter, ox=0, oy=0):
         """Draws the back side of the card."""
         painter.setRenderHint(QPainter.Antialiasing)
-
         color = self.get_color()
 
         # Fill the entire background with the color.
         painter.setBrush(QBrush(color))
         painter.drawRect(ox, oy, self.grid_width, self.grid_height)
 
+        # Select the correct logo based on difficulty
+        if self.difficulty == DifficultyLevel.EASY:
+            logo_based_on_difficulty = self.green_logo
+        elif self.difficulty == DifficultyLevel.MEDIUM:
+            logo_based_on_difficulty = self.yellow_logo
+        elif self.difficulty == DifficultyLevel.HARD:
+            logo_based_on_difficulty = self.red_logo
+
         # Draw the logo centered in the card.
-        svg_renderer = QSvgRenderer(self.black_logo)
-        svg_width = int(self.grid_width * 0.8)
-        svg_height = int(self.grid_height * 0.8)
-        x = ox + (self.grid_width - svg_width) // 2
+        svg_renderer = QSvgRenderer(logo_based_on_difficulty)
+        
+        # Calculate logo size maintaining aspect ratio
+        svg_natural_width = svg_renderer.defaultSize().width()
+        svg_natural_height = svg_renderer.defaultSize().height()
+        svg_height = int(self.grid_height * 1.0)  # 80% of card height
+        svg_width = int(svg_height * (svg_natural_width / svg_natural_height))
+        
+        horizontal_offset = -30  # Adjust this value as needed; positive = right, negative = left
+        x = ox + (self.grid_width - svg_width) // 2 + horizontal_offset
         y = oy + (self.grid_height - svg_height) // 2
         svg_rect = QRect(x, y, svg_width, svg_height)
         svg_renderer.render(painter, svg_rect)
@@ -203,8 +218,10 @@ class GridWindow(QMainWindow):
         # SVG canvas size matches the actual card size (4" x 5")
         canvas_width = self.grid_width
         canvas_height = self.grid_height
+
         ox = 0  # Card starts at origin
         oy = 0  # Card starts at origin
+
         generator = QSvgGenerator()
         generator.setFileName(filename)
         generator.setSize(QSize(canvas_width, canvas_height))
@@ -213,6 +230,7 @@ class GridWindow(QMainWindow):
         generator.setTitle("Bingo Card")
         generator.setDescription("An SVG drawing created by WordMasterBingo.")
         painter = QPainter(generator)
+
         # Draw a white background for the SVG canvas
         painter.setBrush(QBrush(Qt.white))
         painter.setPen(Qt.NoPen)
@@ -232,6 +250,7 @@ def patch_svg_physical_size(filename, width_in="4in", height_in="5in"):
             # Remove any existing width/height attributes
             line = re.sub(r'width="[^"]*"', '', line)
             line = re.sub(r'height="[^"]*"', '', line)
+
             # Add the correct width and height
             line = line.replace("<svg", f'<svg width="{width_in}" height="{height_in}"', 1)
             lines[i] = line
