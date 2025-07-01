@@ -37,10 +37,14 @@ font-family=".AppleSystemUIFont" font-size="17.3333" font-weight="400" font-styl
 <g fill="#000000" fill-opacity="1" stroke="#fbdc6a" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(1,0,0,1,0,0)"
 font-family="Arbutus Slab" font-size="20" font-weight="400" font-style="normal" 
 >
-<text fill="#fbdc6a" fill-opacity="1" stroke="none" xml:space="preserve" x="33.3438" y="54.625" font-family="Arbutus Slab" font-size="20" font-weight="400" font-style="normal" 
- >Extremely careful</text>
-<text fill="#fbdc6a" fill-opacity="1" stroke="none" xml:space="preserve" x="64.2344" y="79.625" font-family="Arbutus Slab" font-size="20" font-weight="400" font-style="normal" 
- >and precise</text>
+<text fill="#fbdc6a" fill-opacity="1" stroke="none" xml:space="preserve" x="26.9844" y="54.625" font-family="Arbutus Slab" font-size="20" font-weight="400" font-style="normal" 
+ >A name for a place</text>
+<text fill="#fbdc6a" fill-opacity="1" stroke="none" xml:space="preserve" x="26.625" y="79.625" font-family="Arbutus Slab" font-size="20" font-weight="400" font-style="normal" 
+ >- person - or group</text>
+<text fill="#fbdc6a" fill-opacity="1" stroke="none" xml:space="preserve" x="48.2656" y="104.625" font-family="Arbutus Slab" font-size="20" font-weight="400" font-style="normal" 
+ >that is used by</text>
+<text fill="#fbdc6a" fill-opacity="1" stroke="none" xml:space="preserve" x="75.8906" y="129.625" font-family="Arbutus Slab" font-size="20" font-weight="400" font-style="normal" 
+ >outsiders</text>
 </g>
 
 <g fill="#fbdc6a" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="2" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(1,0,0,1,0,0)"
@@ -52,8 +56,8 @@ font-family="Barlow" font-size="20" font-weight="700" font-style="normal"
 <g fill="#fbdc6a" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(1,0,0,1,0,0)"
 font-family="Barlow" font-size="20" font-weight="700" font-style="normal" 
 >
-<text fill="#000000" fill-opacity="1" stroke="none" xml:space="preserve" x="88.2344" y="184" font-family="Barlow" font-size="20" font-weight="700" font-style="normal" 
- >Careful</text>
+<text fill="#000000" fill-opacity="1" stroke="none" xml:space="preserve" x="59.25" y="184" font-family="Barlow" font-size="20" font-weight="700" font-style="normal" 
+ >Foreign Name</text>
 </g>
 
 <g fill="#fbdc6a" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="2" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(1,0,0,1,0,0)"
@@ -65,8 +69,8 @@ font-family="Barlow" font-size="20" font-weight="700" font-style="normal"
 <g fill="#fbdc6a" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(1,0,0,1,0,0)"
 font-family="Barlow" font-size="20" font-weight="700" font-style="normal" 
 >
-<text fill="#000000" fill-opacity="1" stroke="none" xml:space="preserve" x="72.2813" y="239" font-family="Barlow" font-size="20" font-weight="700" font-style="normal" 
- >Meticulous</text>
+<text fill="#000000" fill-opacity="1" stroke="none" xml:space="preserve" x="85.25" y="239" font-family="Barlow" font-size="20" font-weight="700" font-style="normal" 
+ >Exonym</text>
 </g>
 
 <g fill="#fbdc6a" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="2" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(1,0,0,1,0,0)"
@@ -78,8 +82,8 @@ font-family="Barlow" font-size="20" font-weight="700" font-style="normal"
 <g fill="#fbdc6a" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(1,0,0,1,0,0)"
 font-family="Barlow" font-size="20" font-weight="700" font-style="normal" 
 >
-<text fill="#000000" fill-opacity="1" stroke="none" xml:space="preserve" x="68.3438" y="294" font-family="Barlow" font-size="20" font-weight="700" font-style="normal" 
- >Painstaking</text>
+<text fill="#000000" fill-opacity="1" stroke="none" xml:space="preserve" x="79.3438" y="294" font-family="Barlow" font-size="20" font-weight="700" font-style="normal" 
+ >Xenonym</text>
 </g>
 </g>
 </svg>
