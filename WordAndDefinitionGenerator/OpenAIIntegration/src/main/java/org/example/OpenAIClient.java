@@ -32,9 +32,9 @@ public class OpenAIClient {
 
     public static String sendImageGenerationRequest(String prompt) {
         try {
-            return sendPostRequest(API_URL + IMAGE_COMPLETION_URI, generateRequestBody(prompt, true));
+            Map<String, Object> requestBody = generateRequestBody(prompt, true);
+            return sendPostRequest(API_URL + IMAGE_COMPLETION_URI, requestBody);
         } catch (Exception ex) {
-            System.err.println("Error in image generation request: " + ex.getMessage());
             return "";
         }
     }
@@ -53,6 +53,9 @@ public class OpenAIClient {
             if (isImageRequest) {
                 Map<String, Object> requestBody = new HashMap<>();
                 requestBody.put("prompt", prompt);
+                requestBody.put("model", "dall-e-3");
+                requestBody.put("size", "1024x1024");
+                requestBody.put("n", 1);
                 return requestBody;
             } else {
                 List<Map<String, String>> messages = new ArrayList<>();

@@ -6,13 +6,23 @@ public class ImageGenerator {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    public static void main(String[] args) {
-        generateImage("Perspective");
-    }
-    public static void generateImage(String word) {
-        String response = OpenAIClient.sendImageGenerationRequest("Generate a playful, uncluttered, and intuitive " +
-                "illustration for kids that clearly describes the word 'perspective' using pictures. ");
+    public static void generateImage(String word) {        
+        String prompt = createSimplePrompt(word);
+        String response = OpenAIClient.sendImageGenerationRequest(prompt);
         System.out.println(response);
+    }
+    
+    private static String createSimplePrompt(String word) {
+        return "Create a simple educational diagram: " +
+               "White background. " +
+               "Draw exactly 2-3 simple objects. " +
+               "Use only basic shapes (circles, squares, triangles). " +
+               "Use only 3-4 bright colors (red, blue, yellow, green). " +
+               "Show the meaning of '" + word + "' clearly. " +
+               "No text, no complex details, no abstract patterns. " +
+               "Style: minimal, clean, like a children's textbook illustration.";
+    }
+    
       /*  JsonNode responseNode = null;
         try {
             responseNode = objectMapper.readTree(response);
@@ -20,5 +30,4 @@ public class ImageGenerator {
         } catch (JsonProcessingException e) {
             return "";
         }*/
-    }
 }

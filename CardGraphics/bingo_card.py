@@ -373,7 +373,7 @@ def create_bingo_cards():
     Utils.initialize(WORDS_FILE)
 
     windows = []
-    num_cards_per_difficulty = 6
+    num_cards_per_difficulty = 16
     svg_files = []
 
     for difficulty in [DifficultyLevel.EASY, DifficultyLevel.MEDIUM, DifficultyLevel.HARD]:
