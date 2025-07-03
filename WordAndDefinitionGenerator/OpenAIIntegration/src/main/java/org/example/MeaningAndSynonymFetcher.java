@@ -4,12 +4,24 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+/**
+ * Utility class for fetching a simple definition and three synonyms (easy, medium, hard) for a given word
+ * using the OpenAI API. The response is returned in a comma-separated single line format.
+ */
+
 public class MeaningAndSynonymFetcher {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
+    /**
+     * Fetches a simple definition and three synonyms (easy, medium, hard) for the given word from OpenAI.
+     * The response is returned in the format: <definition>, <easy synonym>, <medium synonym>, <hard synonym>
+     *
+     * @param word The word to fetch the definition and synonyms for.
+     * @return The definition and synonyms as a comma-separated string, or an empty string if parsing fails.
+     */
     public static String getDefinitions(String word) {
-        System.out.println("Fetching definitions for: " + word); // Debug: show which word is being processed
+        // Send a prompt to OpenAI to get a definition and three synonyms.
         String response = OpenAIClient.sendTextCompletionRequest(
             "Give me a simple Definition and 3 synonyms with difficulty level of easy, medium, and hard for the word '" + word + "'," +
             "Format the response as a comma separate list in a single line - " +
@@ -20,6 +32,7 @@ public class MeaningAndSynonymFetcher {
 
         JsonNode responseNode = null;
         try {
+            // Parse the JSON response from OpenAI.
             responseNode = objectMapper.readTree(response);
             JsonNode choices = responseNode.get("choices");
             if (choices != null && choices.isArray() && choices.size() > 0) {
@@ -29,6 +42,7 @@ public class MeaningAndSynonymFetcher {
                     if (message != null) {
                         JsonNode content = message.get("content");
                         if (content != null) {
+                            // Return the content string (definition and synonyms).
                             return content.asText();
                         }
                     }

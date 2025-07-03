@@ -11,7 +11,7 @@ import re
 from pathlib import Path
 
 # File paths
-WORDS_FILE = "../WordAndDefinitionGenerator/OpenAIIntegration/WordDefinitionsAndSynonyms.txt"
+WORDS_FILE = "../WordAndDefinitionGenerator/OpenAIIntegration/OldWordDefinitionsAndSynonyms.txt"
 LOGO_BASE_PATH = Path(__file__).parent
 
 # Card dimensions (4x5 inches at 96 DPI)

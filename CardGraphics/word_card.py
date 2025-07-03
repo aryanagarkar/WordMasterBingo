@@ -8,7 +8,7 @@ from utils import Utils
 from word import Word
 
 # File paths
-WORDS_FILE = "../WordAndDefinitionGenerator/OpenAIIntegration/WordDefinitionsAndSynonyms.txt"
+WORDS_FILE = "../WordAndDefinitionGenerator/OpenAIIntegration/OldWordDefinitionsAndSynonyms.txt"
 
 # Card dimensions (2.5x3.5 inches at 96 DPI)
 CARD_WIDTH_PIXELS = 240

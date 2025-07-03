@@ -2,16 +2,32 @@ package org.example;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+/**
+ * Utility class for generating simple educational images for vocabulary words using the OpenAI API.
+ *
+ * Note: This class is not currently used in the application because the generated images are still too complex
+ * and do not meet the requirements for minimal, child-friendly illustrations.
+ */
 public class ImageGenerator {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
+    /**
+     * Attempts to generate an educational image for the given word using OpenAI's image API.
+     * Currently not used, as the generated images are too complex.
+     * @param word The vocabulary word to illustrate.
+     */
     public static void generateImage(String word) {        
         String prompt = createSimplePrompt(word);
         String response = OpenAIClient.sendImageGenerationRequest(prompt);
         System.out.println(response);
     }
     
+    /**
+     * Creates a prompt for OpenAI to generate a minimal, child-friendly illustration for a word.
+     * @param word The vocabulary word to illustrate.
+     * @return The prompt string for the image generation API.
+     */
     private static String createSimplePrompt(String word) {
         return "Create a simple educational diagram: " +
                "White background. " +
@@ -22,12 +38,4 @@ public class ImageGenerator {
                "No text, no complex details, no abstract patterns. " +
                "Style: minimal, clean, like a children's textbook illustration.";
     }
-    
-      /*  JsonNode responseNode = null;
-        try {
-            responseNode = objectMapper.readTree(response);
-            return responseNode.get("choices").get(0).get("message").get("content").asText();
-        } catch (JsonProcessingException e) {
-            return "";
-        }*/
 }
