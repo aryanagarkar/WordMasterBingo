@@ -37,12 +37,30 @@ font-family=".AppleSystemUIFont" font-size="17.3333" font-weight="400" font-styl
 <g fill="#000000" fill-opacity="1" stroke="#fbdc6a" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(1,0,0,1,0,0)"
 font-family="Arbutus Slab" font-size="20" font-weight="400" font-style="normal" 
 >
-<text fill="#fbdc6a" fill-opacity="1" stroke="none" xml:space="preserve" x="62.1094" y="54.625" font-family="Arbutus Slab" font-size="20" font-weight="400" font-style="normal" 
- >A confusing</text>
-<text fill="#fbdc6a" fill-opacity="1" stroke="none" xml:space="preserve" x="66.5781" y="79.625" font-family="Arbutus Slab" font-size="20" font-weight="400" font-style="normal" 
- >problem or</text>
-<text fill="#fbdc6a" fill-opacity="1" stroke="none" xml:space="preserve" x="78.8594" y="104.625" font-family="Arbutus Slab" font-size="20" font-weight="400" font-style="normal" 
- >question</text>
+</g>
+
+<g fill="#000000" fill-opacity="1" stroke="#fbdc6a" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(1,0,0,1,0,0)"
+font-family="Arbutus Slab" font-size="20" font-weight="400" font-style="normal" 
+>
+<text fill="#fbdc6a" fill-opacity="1" stroke="none" xml:space="preserve" x="70.3594" y="54.625" font-family="Arbutus Slab" font-size="20" font-weight="400" font-style="normal" 
+ >To look at</text>
+<text fill="#fbdc6a" fill-opacity="1" stroke="none" xml:space="preserve" x="69.375" y="79.625" font-family="Arbutus Slab" font-size="20" font-weight="400" font-style="normal" 
+ >something</text>
+<text fill="#fbdc6a" fill-opacity="1" stroke="none" xml:space="preserve" x="56.2344" y="104.625" font-family="Arbutus Slab" font-size="20" font-weight="400" font-style="normal" 
+ >carefully and</text>
+<text fill="#fbdc6a" fill-opacity="1" stroke="none" xml:space="preserve" x="27.4688" y="129.625" font-family="Arbutus Slab" font-size="20" font-weight="400" font-style="normal" 
+ >closely - especially</text>
+<text fill="#fbdc6a" fill-opacity="1" stroke="none" xml:space="preserve" x="53.875" y="154.625" font-family="Arbutus Slab" font-size="20" font-weight="400" font-style="normal" 
+ >to learn more</text>
+<text fill="#fbdc6a" fill-opacity="1" stroke="none" xml:space="preserve" x="26.9375" y="179.625" font-family="Arbutus Slab" font-size="20" font-weight="400" font-style="normal" 
+ >about it or find out</text>
+<text fill="#fbdc6a" fill-opacity="1" stroke="none" xml:space="preserve" x="35.4844" y="204.625" font-family="Arbutus Slab" font-size="20" font-weight="400" font-style="normal" 
+ >important details</text>
+</g>
+
+<g fill="#000000" fill-opacity="1" stroke="#fbdc6a" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(1,0,0,1,0,0)"
+font-family="Arbutus Slab" font-size="20" font-weight="400" font-style="normal" 
+>
 </g>
 
 <g fill="#fbdc6a" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="2" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(1,0,0,1,0,0)"
@@ -54,14 +72,14 @@ font-family="Barlow" font-size="20" font-weight="700" font-style="normal"
 <g fill="#fbdc6a" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(1,0,0,1,0,0)"
 font-family="Barlow" font-size="20" font-weight="700" font-style="normal" 
 >
-<text fill="#000000" fill-opacity="1" stroke="none" xml:space="preserve" x="91.7656" y="184" font-family="Barlow" font-size="20" font-weight="700" font-style="normal" 
- >Puzzle</text>
+<text fill="#000000" fill-opacity="1" stroke="none" xml:space="preserve" x="83.7656" y="184" font-family="Barlow" font-size="20" font-weight="700" font-style="normal" 
+ >Observe</text>
 <rect x="25" y="206" width="190" height="50"/>
-<text fill="#000000" fill-opacity="1" stroke="none" xml:space="preserve" x="69.0938" y="239" font-family="Barlow" font-size="20" font-weight="700" font-style="normal" 
- >Conundrum</text>
+<text fill="#000000" fill-opacity="1" stroke="none" xml:space="preserve" x="82.0781" y="239" font-family="Barlow" font-size="20" font-weight="700" font-style="normal" 
+ >Examine</text>
 <rect x="25" y="261" width="190" height="50"/>
-<text fill="#000000" fill-opacity="1" stroke="none" xml:space="preserve" x="87.1094" y="294" font-family="Barlow" font-size="20" font-weight="700" font-style="normal" 
- >Enigma</text>
+<text fill="#000000" fill-opacity="1" stroke="none" xml:space="preserve" x="79.1563" y="294" font-family="Barlow" font-size="20" font-weight="700" font-style="normal" 
+ >Scutinize</text>
 </g>
 </g>
 </svg>
