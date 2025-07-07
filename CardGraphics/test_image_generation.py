@@ -19,7 +19,8 @@ from image_generation import (
     DOWNLOAD_FAILED_MSG,
     IMAGE_SAVED_MSG,
     GENERATION_ERROR_MSG,
-    DOWNLOAD_ERROR_MSG
+    DOWNLOAD_ERROR_MSG,
+    DEFINITION_INPUT_PROMPT
 )
 
 class TestImageGeneration(unittest.TestCase):
@@ -38,22 +39,23 @@ class TestImageGeneration(unittest.TestCase):
         self.assertIsInstance(IMAGE_SAVED_MSG, str)
         self.assertIsInstance(GENERATION_ERROR_MSG, str)
         self.assertIsInstance(DOWNLOAD_ERROR_MSG, str)
+        self.assertIsInstance(DEFINITION_INPUT_PROMPT, str)
 
     def test_create_child_friendly_prompt(self):
         """Test that create_child_friendly_prompt generates correct prompts."""
-        # Test with a simple word
-        result = create_child_friendly_prompt("cat")
-        expected = PROMPT_TEMPLATE.format(word="cat")
+        # Test with a simple word and definition
+        result = create_child_friendly_prompt("cat", "a small domesticated animal")
+        expected = PROMPT_TEMPLATE.format(word="cat", definition="a small domesticated animal")
         self.assertEqual(result, expected)
         
-        # Test with a compound word
-        result = create_child_friendly_prompt("fire truck")
-        expected = PROMPT_TEMPLATE.format(word="fire truck")
+        # Test with a compound word and definition
+        result = create_child_friendly_prompt("fire truck", "a large vehicle that puts out fires")
+        expected = PROMPT_TEMPLATE.format(word="fire truck", definition="a large vehicle that puts out fires")
         self.assertEqual(result, expected)
         
         # Test with special characters
-        result = create_child_friendly_prompt("don't")
-        expected = PROMPT_TEMPLATE.format(word="don't")
+        result = create_child_friendly_prompt("don't", "to not do something")
+        expected = PROMPT_TEMPLATE.format(word="don't", definition="to not do something")
         self.assertEqual(result, expected)
 
     def test_create_filename(self):
@@ -73,22 +75,36 @@ class TestImageGeneration(unittest.TestCase):
         expected = FILENAME_TEMPLATE.format(word="can't")
         self.assertEqual(result, expected)
 
-    @patch('builtins.input', return_value="test")
+    @patch('builtins.input', side_effect=["testword", "test definition"])
     def test_get_user_input_with_valid_input(self, mock_input):
-        """Test get_user_input with valid input."""
+        """Test get_user_input with valid input for word and definition."""
         result = get_user_input()
-        self.assertEqual(result, "test")
-        mock_input.assert_called_once_with(USER_INPUT_PROMPT)
+        self.assertEqual(result, ("testword", "test definition"))
+        self.assertEqual(mock_input.call_count, 2)
+        mock_input.assert_any_call(USER_INPUT_PROMPT)
+        mock_input.assert_any_call(DEFINITION_INPUT_PROMPT)
 
-    @patch('builtins.input', return_value="   ")
-    def test_get_user_input_with_empty_input(self, mock_input):
-        """Test get_user_input with empty/whitespace input."""
+    @patch('builtins.input', side_effect=["   ", "test definition"])
+    def test_get_user_input_with_empty_word(self, mock_input):
+        """Test get_user_input with empty/whitespace word input."""
         result = get_user_input()
         self.assertIsNone(result)
 
-    @patch('builtins.input', return_value="")
-    def test_get_user_input_with_no_input(self, mock_input):
-        """Test get_user_input with no input."""
+    @patch('builtins.input', side_effect=["testword", "   "])
+    def test_get_user_input_with_empty_definition(self, mock_input):
+        """Test get_user_input with empty/whitespace definition input."""
+        result = get_user_input()
+        self.assertIsNone(result)
+
+    @patch('builtins.input', side_effect=["", "test definition"])
+    def test_get_user_input_with_no_word_input(self, mock_input):
+        """Test get_user_input with no word input."""
+        result = get_user_input()
+        self.assertIsNone(result)
+
+    @patch('builtins.input', side_effect=["testword", ""])
+    def test_get_user_input_with_no_definition_input(self, mock_input):
+        """Test get_user_input with no definition input."""
         result = get_user_input()
         self.assertIsNone(result)
 
@@ -159,31 +175,39 @@ class TestImageGeneration(unittest.TestCase):
         """Test the integration of multiple functions."""
         # Test the complete workflow with mocked dependencies
         word = "elephant"
-        prompt = create_child_friendly_prompt(word)
+        definition = "a large animal with a trunk"
+        prompt = create_child_friendly_prompt(word, definition)
         filename = create_filename(word)
         
         # Verify the workflow produces expected results
         self.assertIn("elephant", prompt)
+        self.assertIn("trunk", prompt)
         self.assertEqual(filename, FILENAME_TEMPLATE.format(word="elephant"))
-        self.assertIn("VERY SIMPLE", prompt)
-        self.assertIn("10-year-old", prompt)
+        self.assertIn("realistic", prompt)
+        self.assertIn("plain or white", prompt)
 
     def test_edge_cases(self):
         """Test edge cases and boundary conditions."""
-        # Test with very long word
+        # Test with very long word and definition
         long_word = "a" * 100
-        prompt = create_child_friendly_prompt(long_word)
+        long_definition = "b" * 200
+        prompt = create_child_friendly_prompt(long_word, long_definition)
         self.assertIn(long_word, prompt)
+        self.assertIn(long_definition, prompt)
         
         # Test with numbers
         number_word = "123"
-        prompt = create_child_friendly_prompt(number_word)
+        number_definition = "a number sequence"
+        prompt = create_child_friendly_prompt(number_word, number_definition)
         self.assertIn(number_word, prompt)
+        self.assertIn(number_definition, prompt)
         
         # Test with unicode characters
         unicode_word = "café"
-        prompt = create_child_friendly_prompt(unicode_word)
+        unicode_definition = "a small restaurant"
+        prompt = create_child_friendly_prompt(unicode_word, unicode_definition)
         self.assertIn(unicode_word, prompt)
+        self.assertIn(unicode_definition, prompt)
 
     def test_constant_formats(self):
         """Test that constants have proper format placeholders."""
@@ -204,8 +228,8 @@ class TestImageGeneration(unittest.TestCase):
         """Test that constants have expected values."""
         self.assertEqual(DEFAULT_MODEL, "dall-e-3")
         self.assertEqual(DEFAULT_SIZE, "1024x1024")
-        self.assertIn("VERY SIMPLE", PROMPT_TEMPLATE)
-        self.assertIn("10-year-old", PROMPT_TEMPLATE)
+        self.assertIn("simple, clear, and realistic", PROMPT_TEMPLATE)
+        self.assertIn("illustration", PROMPT_TEMPLATE)
         self.assertIn("_for_child.png", FILENAME_TEMPLATE)
 
 if __name__ == '__main__':

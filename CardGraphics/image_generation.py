@@ -8,8 +8,9 @@ OPENAI_API_KEY_ENV_VAR = "API_KEY"
 API_KEY_ERROR_MSG = "Error: Please set your OpenAI API key in the OPENAI_API_KEY environment variable."
 DEFAULT_MODEL = "dall-e-3"
 DEFAULT_SIZE = "1024x1024"
-PROMPT_TEMPLATE = "A simple, clear, and realistic illustration that directly and literally shows the meaning of '{word}' for a student. The image should contain only 1 or 2 objects, with no extra decorations, no unrelated objects, no text, and no complex details. The background should be plain or white, with nothing else in the scene. Avoid cartoonish or exaggerated styles. For abstract qualities, show a simple scene that clearly demonstrates the meaning. For example, for the word 'perspective', you could show two people looking at opposite ends of a number on the ground, one seeing a 6 and the other seeing a 9. For 'dauntless', show a person bravely facing a challenge, like standing tall in front of a large wave. For 'pallid', show a person with a very pale face, looking tired or unwell."
+PROMPT_TEMPLATE = "A simple, clear, and realistic illustration that directly and literally shows the meaning of '{word}': {definition}. The image should contain only 1 or 2 objects, with no extra decorations, no unrelated objects, no text, and no complex details. The background should be plain or white, with nothing else in the scene. Avoid cartoonish or exaggerated styles. For abstract qualities, show a simple scene that clearly demonstrates the meaning. For example, for the word 'perspective', you could show two people looking at opposite ends of a number on the ground, one seeing a 6 and the other seeing a 9. For 'dauntless', show a person bravely facing a challenge, like standing tall in front of a large wave. For 'pallid', show a person with a very pale face, looking tired or unwell."
 USER_INPUT_PROMPT = "Enter a word to illustrate: "
+DEFINITION_INPUT_PROMPT = "Enter the definition for the word: "
 NO_WORD_MSG = "No word entered. Exiting."
 GENERATING_MSG = "Generating image, please wait..."
 GENERATION_FAILED_MSG = "Failed to generate image."
@@ -28,17 +29,18 @@ if not OPENAI_API_KEY:
 # Initialize OpenAI client
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-def create_child_friendly_prompt(word: str) -> str:
+def create_child_friendly_prompt(word: str, definition: str) -> str:
     """
-    Creates a child-friendly prompt for image generation.
+    Creates a child-friendly prompt for image generation using the word and its definition.
     
     Args:
         word (str): The word to illustrate
-        
+        definition (str): The definition of the word
+    
     Returns:
         str: A formatted prompt optimized for educational clarity
     """
-    return PROMPT_TEMPLATE.format(word=word)
+    return PROMPT_TEMPLATE.format(word=word, definition=definition)
 
 def generate_image(prompt: str, model: str = DEFAULT_MODEL, size: str = DEFAULT_SIZE) -> Optional[str]:
     """
@@ -84,15 +86,20 @@ def download_image(image_url: str, filename: str) -> bool:
         print(DOWNLOAD_ERROR_MSG.format(error=e))
         return False
 
-def get_user_input() -> Optional[str]:
+def get_user_input() -> Optional[tuple]:
     """
-    Gets user input for the word to illustrate.
+    Gets user input for the word and its definition to illustrate.
     
     Returns:
-        Optional[str]: The user's input, or None if no input provided
+        Optional[tuple]: The user's input as (word, definition), or None if no input provided
     """
     word = input(USER_INPUT_PROMPT).strip()
-    return word if word else None
+    if not word:
+        return None
+    definition = input(DEFINITION_INPUT_PROMPT).strip()
+    if not definition:
+        return None
+    return word, definition
 
 def create_filename(word: str) -> str:
     """
@@ -109,19 +116,20 @@ def create_filename(word: str) -> str:
 def main():
     """
     Main function that handles the complete workflow:
-    1. Prompts user for a word to illustrate
+    1. Prompts user for a word and its definition to illustrate
     2. Creates a child-friendly prompt for image generation
     3. Calls OpenAI's DALL-E API to generate an image
     4. Downloads and saves the generated image locally
     """
-    # Get user input for the word to illustrate
-    word = get_user_input()
-    if not word:
+    # Get user input for the word and its definition to illustrate
+    user_input = get_user_input()
+    if not user_input:
         print(NO_WORD_MSG)
         return
+    word, definition = user_input
 
     # Create a child-friendly prompt optimized for educational clarity
-    prompt = create_child_friendly_prompt(word)
+    prompt = create_child_friendly_prompt(word, definition)
 
     print(GENERATING_MSG)
     
