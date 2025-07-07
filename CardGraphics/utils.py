@@ -90,7 +90,7 @@ class Utils:
                 main_word = word_part.strip()
 
                 # Split the remaining attributes into definition and synonyms.
-                attributes = remaining_attributes.split(',')
+                attributes = remaining_attributes.split('|')
                 definition = attributes[0].strip()
                 easy = attributes[1].strip()
                 medium = attributes[2].strip()
