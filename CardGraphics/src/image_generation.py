@@ -1,11 +1,11 @@
 import os
 import requests
 from openai import OpenAI
-from typing import Optional
+from typing import Optional, Any
 
 # Constants
 OPENAI_API_KEY_ENV_VAR = "API_KEY"
-API_KEY_ERROR_MSG = "Error: Please set your OpenAI API key in the OPENAI_API_KEY environment variable."
+API_KEY_ERROR_MSG = "Error: Please set your OpenAI API key in the API_KEY environment variable."
 DEFAULT_MODEL = "dall-e-3"
 DEFAULT_SIZE = "1024x1024"
 PROMPT_TEMPLATE = "A simple, clear, and realistic illustration that directly and literally shows the meaning of '{word}': {definition}. The image should contain only 1 or 2 objects, with no extra decorations, no unrelated objects, no text, and no complex details. The background should be plain or white, with nothing else in the scene. Avoid cartoonish or exaggerated styles. For abstract qualities, show a simple scene that clearly demonstrates the meaning. For example, for the word 'perspective', you could show two people looking at opposite ends of a number on the ground, one seeing a 6 and the other seeing a 9. For 'dauntless', show a person bravely facing a challenge, like standing tall in front of a large wave. For 'pallid', show a person with a very pale face, looking tired or unwell."
@@ -40,45 +40,74 @@ def create_child_friendly_prompt(word: str, definition: str) -> str:
     Returns:
         str: A formatted prompt optimized for educational clarity
     """
+
     return PROMPT_TEMPLATE.format(word=word, definition=definition)
 
-def generate_image(prompt: str, model: str = DEFAULT_MODEL, size: str = DEFAULT_SIZE) -> Optional[str]:
+def generate_image(prompt: str, model: str = DEFAULT_MODEL, size: str = DEFAULT_SIZE, client_obj: Any = None) -> Optional[str]:
     """
     Generates an image using OpenAI's DALL-E API.
+    Allows dependency injection of the OpenAI client for testing.
     
     Args:
         prompt (str): The prompt describing the image to generate
         model (str): The DALL-E model to use (default: "dall-e-3")
         size (str): The size of the generated image (default: "1024x1024")
+        client_obj (Any): The OpenAI client object (default: None)
         
     Returns:
         Optional[str]: The URL of the generated image, or None if generation failed
     """
+
+    if client_obj is None:
+        client_obj = client
     try:
-        response = client.images.generate(
+        response = client_obj.images.generate(
             model=model,
             prompt=prompt,
             n=1,
             size=size
         )
-        return response.data[0].url
+        return get_image_url_from_response(response)
     except Exception as e:
         print(GENERATION_ERROR_MSG.format(error=e))
         return None
 
-def download_image(image_url: str, filename: str) -> bool:
+def get_image_url_from_response(response: Any) -> Optional[str]:
+    """
+    Extracts the image URL from the OpenAI API response object.
+    Returns None if not found.
+    """
+    # The response is expected to have a .data[0].url attribute
+    try:
+        return response.data[0].url
+    except (AttributeError, IndexError, KeyError):
+        return None
+
+def is_valid_image_url(url: str) -> bool:
+    """
+    Checks if the given URL is a valid image URL (basic check).
+    """
+
+    return isinstance(url, str) and url.startswith("http") and (url.endswith(".png") or url.endswith(".jpg") or url.endswith(".jpeg"))
+
+def download_image(image_url: str, filename: str, requests_module: Any = None) -> bool:
     """
     Downloads an image from a URL and saves it to a file.
+    Allows dependency injection of the requests module for testing.
     
     Args:
         image_url (str): The URL of the image to download
         filename (str): The filename to save the image as
+        requests_module (Any): The requests module object (default: None)
         
     Returns:
         bool: True if download successful, False otherwise
     """
+
+    if requests_module is None:
+        requests_module = requests
     try:
-        img_data = requests.get(image_url).content
+        img_data = requests_module.get(image_url).content
         with open(filename, 'wb') as handler:
             handler.write(img_data)
         return True
@@ -93,6 +122,7 @@ def get_user_input() -> Optional[tuple]:
     Returns:
         Optional[tuple]: The user's input as (word, definition), or None if no input provided
     """
+
     word = input(USER_INPUT_PROMPT).strip()
     if not word:
         return None
@@ -111,6 +141,7 @@ def create_filename(word: str) -> str:
     Returns:
         str: A descriptive filename
     """
+
     return FILENAME_TEMPLATE.format(word=word)
 
 def main():
@@ -121,6 +152,7 @@ def main():
     3. Calls OpenAI's DALL-E API to generate an image
     4. Downloads and saves the generated image locally
     """
+    
     # Get user input for the word and its definition to illustrate
     user_input = get_user_input()
     if not user_input:

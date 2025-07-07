@@ -4,11 +4,14 @@ from PySide6.QtGui import QPainter, QPen, QBrush, QColor, QFont, QTextOption
 from PySide6.QtCore import Qt, QRect, QSize
 from PySide6.QtSvg import QSvgGenerator
 import re
-from utils import Utils
-from word import Word
+from CardGraphics.src.utils import Utils
+from CardGraphics.src.word import Word
+from typing import Optional
+from pathlib import Path
 
 # File paths.
-WORDS_FILE = "../WordAndDefinitionGenerator/OpenAIIntegration/OldWordDefinitionsAndSynonyms.txt"
+WORDS_FILE = "/Users/aryanagarkar/Workspace/LingoBingo/WordAndDefinitionGenerator/OpenAIIntegration/WordDefinitionsAndSynonyms.txt"
+WORDCARDS_DIR = Path(__file__).parent.parent / "WordCards"
 
 # Card dimensions (2.5x3.5 inches at 96 DPI).
 CARD_WIDTH_PIXELS = 240
@@ -46,48 +49,67 @@ SVG_HEIGHT_INCHES = "3.5in"
 # Word box configuration.
 NUM_WORD_BOXES = 3
 
+class WordCardData:
+    """
+    Holds all data and logic needed to render a word card.
+    This class is independent of any GUI and is fully unit-testable.
+    """
+
+    def __init__(self, word: Word):
+        """
+        Initialize the WordCardData with a Word object.
+
+        Args:
+            word (Word): The Word object to display on the card.
+        """
+
+        self.word = word
+        self.definition = word.definition
+        self.easy_synonym = word.easy_word
+        self.medium_synonym = word.word
+        self.hard_synonym = word.hard_word
+
+    def as_dict(self) -> dict:
+        """
+        Return the card data as a dictionary (for testing or serialization).
+
+        Returns:
+            dict: Dictionary representation of the card data.
+        """
+
+        return {
+            'word': self.word.word,
+            'definition': self.definition,
+            'easy_synonym': self.easy_synonym,
+            'medium_synonym': self.medium_synonym,
+            'hard_synonym': self.hard_synonym
+        }
 
 class WordCard(QMainWindow):
     """
     A word card widget that displays a word with its definition and synonyms for different difficulty levels.
     Used for lingo bingo educational vocabulary game using words, definitions, and synonyms.
     """
-    
-    def __init__(self, word):
+
+    def __init__(self, card_data: WordCardData):
         """
-        Initialize the word card with the given word.
+        Initialize the word card with the given card data.
+
         Args:
-            word (Word): The Word object to display on the card.
+            card_data (WordCardData): The data to display on the card.
         """
-        
+
         super().__init__()
         self.setWindowTitle("Word Card")
-        
-        self.word = word
+        self.card_data = card_data
         self.side = 'front'
-        
-        # Initialize card data.
-        self._setup_card_data()
         self._setup_dimensions()
         self._setup_fonts()
         self._setup_appearance()
-        
-        # Initialize offsets (will be set in resizeEvent).
         self.offset_x = 0
         self.offset_y = 0
 
-    def _setup_card_data(self):
-        """
-        Extract and assign word data for display on the card.
-        Sets the definition and synonyms for each difficulty level from the Word object.
-        """
-
-        self.definition = self.word.get_definitions()
-        self.easy_synonym = self.word.get_easy_word()
-        self.medium_synonym = self.word.get_word()
-        self.hard_synonym = self.word.get_hard_word()
-
-    def _setup_dimensions(self):
+    def _setup_dimensions(self) -> None:
         """
         Setup card dimensions and geometry for the word card window.
         Sets grid width, height, and window geometry.
@@ -97,26 +119,23 @@ class WordCard(QMainWindow):
         self.grid_height = CARD_HEIGHT_PIXELS
         self.setGeometry(100, 100, self.grid_width, self.grid_height)
 
-    def _setup_fonts(self):
+    def _setup_fonts(self) -> None:
         """
         Setup fonts and text options for the card.
         Initializes fonts for the definition and word sections, and sets text alignment and wrapping options.
         """
-        
+
         self.definition_font = QFont('Arbutus Slab', DEFINITION_FONT_SIZE)
         self.word_font = QFont('Barlow', WORD_FONT_SIZE)
         self.word_font.setBold(True)
-        
-        # Text options for different sections.
         self.top_section_text_option = QTextOption()
         self.top_section_text_option.setWrapMode(QTextOption.WordWrap)
         self.top_section_text_option.setAlignment(Qt.AlignCenter | Qt.AlignHCenter)
-        
         self.bottom_section_text_option = QTextOption()
         self.bottom_section_text_option.setWrapMode(QTextOption.WordWrap)
         self.bottom_section_text_option.setAlignment(Qt.AlignCenter)
 
-    def _setup_appearance(self):
+    def _setup_appearance(self) -> None:
         """
         Setup window appearance, including background color.
         """
@@ -129,14 +148,12 @@ class WordCard(QMainWindow):
     def resizeEvent(self, event):
         """
         Handle window resize events to keep the card consistently centered.
+
         Args:
             event (QResizeEvent): The resize event object.
         """
-        
-        # Call the base class implementation.
-        super().resizeEvent(event)
 
-        # Calculate offsets to center the card.
+        super().resizeEvent(event)
         self.offset_x = (self.width() - self.grid_width) // 2
         self.offset_y = (self.height() - self.grid_height) // 2
         self.repaint()
@@ -144,14 +161,12 @@ class WordCard(QMainWindow):
     def paintEvent(self, event):
         """
         Handle paint events to draw the card's front or back side.
+
         Args:
             event (QPaintEvent): The paint event object.
         """
 
-        # Create a QPainter to handle drawing.
         painter = QPainter(self)
-        
-        # Draw the appropriate side of the card.
         if self.side == 'front':
             self.draw_front_side(painter, ox=self.offset_x, oy=self.offset_y)
         else:
@@ -251,7 +266,7 @@ class WordCard(QMainWindow):
         # Draw definition text.
         painter.setFont(self.definition_font)
         painter.setPen(YELLOW)
-        painter.drawText(text_rect, Qt.AlignTop | Qt.AlignHCenter | Qt.TextWordWrap, self.definition)
+        painter.drawText(text_rect, Qt.AlignTop | Qt.AlignHCenter | Qt.TextWordWrap, self.card_data.definition)
 
     def _draw_word_boxes(self, painter, ox, oy):
         """
@@ -273,7 +288,7 @@ class WordCard(QMainWindow):
         box_width = (right - left) - 2 * WORD_BOX_MARGIN_SIDES
         
         # Get word data to put in each box.
-        words = [self.easy_synonym, self.medium_synonym, self.hard_synonym]
+        words = [self.card_data.easy_synonym, self.card_data.medium_synonym, self.card_data.hard_synonym]
         
         # Set font and brush for word boxes.
         painter.setFont(self.word_font)
@@ -422,25 +437,24 @@ def create_word_cards():
 
     for i, word in enumerate(words):
         # Create back side of the card.
-        word_card_back = WordCard(word)
+        word_card_back = WordCard(WordCardData(word))
         word_card_back.set_side('back')
         word_card_back.show()
         windows.append(word_card_back)
-        back_svg_path = f"WordCards/word_card_{i}_back.svg"
+        back_svg_path = str(WORDCARDS_DIR / f"word_card_{i}_back.svg")
         word_card_back.save_as_svg(back_svg_path, side='back')
         svg_files.append(back_svg_path)
         
         # Create front side of the card.
-        word_card_front = WordCard(word)
+        word_card_front = WordCard(WordCardData(word))
         word_card_front.set_side('front')
         word_card_front.show()
         windows.append(word_card_front)
-        front_svg_path = f"WordCards/word_card_{i}_front.svg"
+        front_svg_path = str(WORDCARDS_DIR / f"word_card_{i}_front.svg")
         word_card_front.save_as_svg(front_svg_path, side='front')
         svg_files.append(front_svg_path)
 
     return app, windows, svg_files
-
 
 if __name__ == "__main__":
     # Run the card creation process if this script is executed directly.

@@ -3,16 +3,18 @@ from PySide6.QtWidgets import QApplication, QMainWindow
 from PySide6.QtGui import QPainter, QPen, QBrush, QColor, QFont
 from PySide6.QtCore import Qt, QRect, QSize
 import random
-from utils import Utils
-from word import Word
+from CardGraphics.src.utils import Utils
+from CardGraphics.src.word import Word
+from CardGraphics.src.difficulty_level import DifficultyLevel
 from PySide6.QtSvg import QSvgRenderer, QSvgGenerator
-from difficulty_level import DifficultyLevel
 import re
 from pathlib import Path
+from typing import List
 
 # File paths.
-WORDS_FILE = "../WordAndDefinitionGenerator/OpenAIIntegration/OldWordDefinitionsAndSynonyms.txt"
-LOGO_BASE_PATH = Path(__file__).parent
+WORDS_FILE = "/Users/aryanagarkar/Workspace/LingoBingo/WordAndDefinitionGenerator/OpenAIIntegration/WordDefinitionsAndSynonyms.txt"
+LOGO_BASE_PATH = Path(__file__).parent.parent
+BINGOCARDS_DIR = Path(__file__).parent.parent / "BingoCards"
 
 # Card dimensions (4x5 inches at 96 DPI).
 CARD_WIDTH_PIXELS = 384
@@ -46,55 +48,99 @@ SVG_DPI = 96
 SVG_WIDTH_INCHES = "4in"
 SVG_HEIGHT_INCHES = "5in"
 
+class BingoCardData:
+    """
+    Holds all data and logic needed to render a bingo card.
+    This class is independent of any GUI and is fully unit-testable.
+    """
 
-class BingoCard(QMainWindow):
-    """
-    A bingo card widget that can display front and back sides with a grid of words.
-    Used for lingo bingo educational vocabulary game using words, definitions, and synonyms.
-    """
-    
-    def __init__(self, words, difficulty=DifficultyLevel.MEDIUM):
+    def __init__(self, words: List[Word], difficulty: DifficultyLevel = DifficultyLevel.MEDIUM):
         """
-        Initialize the bingo card with a list of words and a difficulty level.
+        Initialize the BingoCardData with a list of Word objects and a difficulty level.
+
         Args:
-            words (list of Word): List of Word objects to display on the card.
+            words (List[Word]): List of Word objects to display on the card.
             difficulty (DifficultyLevel): The difficulty level for the card.
         """
-        
-        super().__init__()
-        self.setWindowTitle("Bingo Card")
-        
-        # Normalize words list to exactly 16 items.
+
         self.words = self._normalize_words_list(words)
         self.difficulty = difficulty
-        self.side = 'front'
-        
-        # Initialize dimensions.
-        self._setup_dimensions()
-        self._setup_logo_paths()
-        self._setup_appearance()
-        
-        # Initialize offsets (will be set in resizeEvent).
-        self.offset_x = 0
-        self.offset_y = 0
 
-    def _normalize_words_list(self, words):
+    def _normalize_words_list(self, words: List[Word]) -> List[Word]:
         """
         Ensure the words list has exactly WORDS_PER_CARD items.
         If there are fewer, pad with empty Word objects; if more, truncate.
+
         Args:
-            words (list of Word): List of Word objects.
+            words (List[Word]): List of Word objects.
         Returns:
-            list: List of exactly WORDS_PER_CARD Word objects.
+            List[Word]: List of exactly WORDS_PER_CARD Word objects.
         """
-        
+
         if len(words) < WORDS_PER_CARD:
             return words + [Word() for _ in range(WORDS_PER_CARD - len(words))]
         elif len(words) > WORDS_PER_CARD:
             return words[:WORDS_PER_CARD]
         return words
 
-    def _setup_dimensions(self):
+    def get_words_for_grid(self) -> List[str]:
+        """
+        Get the list of words for the bingo grid based on the current difficulty.
+
+        Returns:
+            List[str]: List of words for the grid.
+        """
+
+        result = []
+        for word_obj in self.words:
+            if self.difficulty == DifficultyLevel.EASY:
+                result.append(word_obj.easy_word)
+            elif self.difficulty == DifficultyLevel.MEDIUM:
+                result.append(word_obj.medium_word)
+            elif self.difficulty == DifficultyLevel.HARD:
+                result.append(word_obj.hard_word)
+            else:
+                result.append(word_obj.word)
+        return result
+
+    def as_dict(self) -> dict:
+        """
+        Return the card data as a dictionary (for testing or serialization).
+
+        Returns:
+            dict: Dictionary representation of the card data.
+        """
+
+        return {
+            'words': [w.word for w in self.words],
+            'difficulty': self.difficulty.name
+        }
+
+class BingoCard(QMainWindow):
+    """
+    A bingo card widget that can display front and back sides with a grid of words.
+    Used for 'lingo bingo' - an educational vocabulary game using words, definitions, and synonyms.
+    """
+
+    def __init__(self, card_data: BingoCardData):
+        """
+        Initialize the bingo card with a BingoCardData instance.
+
+        Args:
+            card_data (BingoCardData): The data to display on the card.
+        """
+
+        super().__init__()
+        self.setWindowTitle("Bingo Card")
+        self.card_data = card_data
+        self.side = 'front'
+        self._setup_dimensions()
+        self._setup_logo_paths()
+        self._setup_appearance()
+        self.offset_x = 0
+        self.offset_y = 0
+
+    def _setup_dimensions(self) -> None:
         """
         Setup card dimensions and geometry for the bingo card window.
         Sets grid width, height, and top section height.
@@ -105,7 +151,7 @@ class BingoCard(QMainWindow):
         self.top_section_height = GRID_SIZE_PIXELS * TOP_SECTION_ROWS
         self.setGeometry(100, 100, self.grid_width, self.grid_height)
 
-    def _setup_logo_paths(self):
+    def _setup_logo_paths(self) -> None:
         """
         Setup logo file paths for different card sides and difficulties.
         """
@@ -117,7 +163,7 @@ class BingoCard(QMainWindow):
             'hard': LOGO_BASE_PATH / "lingo_bingo_logo_red.svg"
         }
 
-    def _setup_appearance(self):
+    def _setup_appearance(self) -> None:
         """
         Setup window appearance, including background color.
         """
@@ -130,6 +176,7 @@ class BingoCard(QMainWindow):
     def get_difficulty_color(self):
         """
         Get the color associated with the current difficulty level.
+
         Returns:
             QColor: The color for the current difficulty (green, yellow, or red).
         """
@@ -139,53 +186,34 @@ class BingoCard(QMainWindow):
             DifficultyLevel.MEDIUM: YELLOW,
             DifficultyLevel.HARD: RED
         }
-        return color_map.get(self.difficulty, YELLOW)
-
-    def get_word_by_difficulty(self, word_obj):
-        """
-        Get the appropriate word string from a Word object based on the card's difficulty.
-        Args:
-            word_obj (Word): The Word object to extract the word from.
-        Returns:
-            str: The word for the current difficulty level.
-        """
-
-        method_map = {
-            DifficultyLevel.EASY: word_obj.get_easy_word,
-            DifficultyLevel.MEDIUM: word_obj.get_medium_word,
-            DifficultyLevel.HARD: word_obj.get_hard_word
-        }
-        method = method_map.get(self.difficulty, word_obj.get_word)
-        return method()
+        return color_map.get(self.card_data.difficulty, YELLOW)
 
     def get_logo_path(self):
         """
         Get the appropriate logo path based on the current card side and difficulty.
+
         Returns:
             Path: Path to the SVG logo file.
         """
-        
+
         if self.side == 'front':
             return self.logos['front']
-        
         difficulty_map = {
             DifficultyLevel.EASY: 'easy',
             DifficultyLevel.MEDIUM: 'medium',
             DifficultyLevel.HARD: 'hard'
         }
-        return self.logos[difficulty_map.get(self.difficulty, 'medium')]
+        return self.logos[difficulty_map.get(self.card_data.difficulty, 'medium')]
 
     def resizeEvent(self, event):
         """
         Handle window resize events to keep the card consistently centered.
+
         Args:
             event (QResizeEvent): The resize event object.
         """
-        
-        # Call the base class implementation.
-        super().resizeEvent(event)
 
-        # Calculate offsets to center the card.
+        super().resizeEvent(event)
         self.offset_x = (self.width() - self.grid_width) // 2
         self.offset_y = (self.height() - self.grid_height) // 2
         self.repaint()
@@ -311,8 +339,8 @@ class BingoCard(QMainWindow):
         """
         
         index = (row - 1) * GRID_COLS + col
-        word_obj = self.words[index]
-        word = self.get_word_by_difficulty(word_obj)
+        word_obj = self.card_data.words[index]
+        word = self.card_data.get_words_for_grid()[index]
 
         # Cell position and size.
         cell_x = ox + col * GRID_SIZE_PIXELS
@@ -521,11 +549,10 @@ def get_words_by_difficulty(difficulty_enum):
     Returns:
         list: List of Word objects that have a valid word for the given difficulty.
     """
-    
     # Filter all words to only those that have a valid word for the given difficulty.
     all_words = [
         w for w in Utils.get_words() 
-        if getattr(w, f'get_{difficulty_enum.value}_word')() != '-'
+        if getattr(w, f'{difficulty_enum.value}_word') != '-'
     ]
     return all_words
 
@@ -556,25 +583,24 @@ def create_bingo_cards():
                                 word_objs[:WORDS_PER_CARD % len(word_objs)])
 
             # Create back side.
-            card_back = BingoCard(selected_words, difficulty=difficulty)
+            card_back = BingoCard(BingoCardData(selected_words, difficulty=difficulty))
             card_back.set_side('back')
             card_back.show()
             windows.append(card_back)
-            back_svg_path = f"BingoCards/bingo_card_{difficulty.value}_{i}_back.svg"
+            back_svg_path = str(BINGOCARDS_DIR / f"bingo_card_{difficulty.value}_{i}_back.svg")
             card_back.save_as_svg(back_svg_path, side='back')
             svg_files.append(back_svg_path)
 
             # Create front side.
-            card_front = BingoCard(selected_words, difficulty=difficulty)
+            card_front = BingoCard(BingoCardData(selected_words, difficulty=difficulty))
             card_front.set_side('front')
             card_front.show()
             windows.append(card_front)
-            front_svg_path = f"BingoCards/bingo_card_{difficulty.value}_{i}_front.svg"
+            front_svg_path = str(BINGOCARDS_DIR / f"bingo_card_{difficulty.value}_{i}_front.svg")
             card_front.save_as_svg(front_svg_path, side='front')
             svg_files.append(front_svg_path)
     
     return app, windows, svg_files
-
 
 if __name__ == "__main__":
     app, windows, svg_files = create_bingo_cards()

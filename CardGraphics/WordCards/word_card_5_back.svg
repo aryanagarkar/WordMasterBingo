@@ -37,12 +37,10 @@ font-family=".AppleSystemUIFont" font-size="17.3333" font-weight="400" font-styl
 <g fill="#000000" fill-opacity="1" stroke="#fbdc6a" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(1,0,0,1,0,0)"
 font-family="Arbutus Slab" font-size="20" font-weight="400" font-style="normal" 
 >
-<text fill="#fbdc6a" fill-opacity="1" stroke="none" xml:space="preserve" x="41.5781" y="54.625" font-family="Arbutus Slab" font-size="20" font-weight="400" font-style="normal" 
- >Lacking healthy</text>
-<text fill="#fbdc6a" fill-opacity="1" stroke="none" xml:space="preserve" x="50.2344" y="79.625" font-family="Arbutus Slab" font-size="20" font-weight="400" font-style="normal" 
- >color - usually</text>
-<text fill="#fbdc6a" fill-opacity="1" stroke="none" xml:space="preserve" x="26.3125" y="104.625" font-family="Arbutus Slab" font-size="20" font-weight="400" font-style="normal" 
- >from illness or fear</text>
+<text fill="#fbdc6a" fill-opacity="1" stroke="none" xml:space="preserve" x="36.2969" y="54.625" font-family="Arbutus Slab" font-size="20" font-weight="400" font-style="normal" 
+ >To give up power</text>
+<text fill="#fbdc6a" fill-opacity="1" stroke="none" xml:space="preserve" x="58.4688" y="79.625" font-family="Arbutus Slab" font-size="20" font-weight="400" font-style="normal" 
+ >or a position</text>
 </g>
 
 <g fill="#fbdc6a" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="2" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(1,0,0,1,0,0)"
@@ -54,14 +52,14 @@ font-family="Barlow" font-size="20" font-weight="700" font-style="normal"
 <g fill="#fbdc6a" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(1,0,0,1,0,0)"
 font-family="Barlow" font-size="20" font-weight="700" font-style="normal" 
 >
-<text fill="#000000" fill-opacity="1" stroke="none" xml:space="preserve" x="101.109" y="184" font-family="Barlow" font-size="20" font-weight="700" font-style="normal" 
- >Pale</text>
+<text fill="#000000" fill-opacity="1" stroke="none" xml:space="preserve" x="102.438" y="184" font-family="Barlow" font-size="20" font-weight="700" font-style="normal" 
+ >Quit</text>
 <rect x="25" y="206" width="190" height="50"/>
-<text fill="#000000" fill-opacity="1" stroke="none" xml:space="preserve" x="96" y="239" font-family="Barlow" font-size="20" font-weight="700" font-style="normal" 
- >Pallid</text>
+<text fill="#000000" fill-opacity="1" stroke="none" xml:space="preserve" x="76.1094" y="239" font-family="Barlow" font-size="20" font-weight="700" font-style="normal" 
+ >Renounce</text>
 <rect x="25" y="261" width="190" height="50"/>
-<text fill="#000000" fill-opacity="1" stroke="none" xml:space="preserve" x="101.125" y="294" font-family="Barlow" font-size="20" font-weight="700" font-style="normal" 
- >Wan</text>
+<text fill="#000000" fill-opacity="1" stroke="none" xml:space="preserve" x="80.3594" y="294" font-family="Barlow" font-size="20" font-weight="700" font-style="normal" 
+ >Abdicate</text>
 </g>
 </g>
 </svg>

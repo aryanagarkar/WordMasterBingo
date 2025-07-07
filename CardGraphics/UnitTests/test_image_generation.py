@@ -2,12 +2,15 @@ import unittest
 from unittest.mock import patch, MagicMock, mock_open
 import tempfile
 import os
-from image_generation import (
+from CardGraphics.src.image_generation import (
     create_child_friendly_prompt,
     create_filename,
     download_image,
     get_user_input,
     generate_image,
+    get_image_url_from_response,
+    is_valid_image_url,
+    
     # Import constants
     PROMPT_TEMPLATE,
     USER_INPUT_PROMPT,
@@ -108,7 +111,7 @@ class TestImageGeneration(unittest.TestCase):
         result = get_user_input()
         self.assertIsNone(result)
 
-    @patch('image_generation.client')
+    @patch('CardGraphics.src.image_generation.client')
     def test_generate_image_success(self, mock_client):
         """Test successful image generation."""
         # Mock the OpenAI client response
@@ -126,7 +129,7 @@ class TestImageGeneration(unittest.TestCase):
             size=DEFAULT_SIZE
         )
 
-    @patch('image_generation.client')
+    @patch('CardGraphics.src.image_generation.client')
     def test_generate_image_failure(self, mock_client):
         """Test image generation failure."""
         # Mock the OpenAI client to raise an exception
@@ -136,7 +139,7 @@ class TestImageGeneration(unittest.TestCase):
         
         self.assertIsNone(result)
 
-    @patch('image_generation.requests.get')
+    @patch('CardGraphics.src.image_generation.requests.get')
     def test_download_image_success(self, mock_get):
         """Test successful image download."""
         # Mock the requests response
@@ -162,7 +165,7 @@ class TestImageGeneration(unittest.TestCase):
             if os.path.exists(temp_filename):
                 os.unlink(temp_filename)
 
-    @patch('image_generation.requests.get')
+    @patch('CardGraphics.src.image_generation.requests.get')
     def test_download_image_failure(self, mock_get):
         """Test image download failure."""
         # Mock requests to raise an exception
@@ -231,6 +234,25 @@ class TestImageGeneration(unittest.TestCase):
         self.assertIn("simple, clear, and realistic", PROMPT_TEMPLATE)
         self.assertIn("illustration", PROMPT_TEMPLATE)
         self.assertIn("_for_child.png", FILENAME_TEMPLATE)
+
+    def test_get_image_url_from_response_success(self):
+        mock_response = MagicMock()
+        mock_response.data = [MagicMock(url='http://example.com/image.png')]
+        url = get_image_url_from_response(mock_response)
+        self.assertEqual(url, 'http://example.com/image.png')
+
+    def test_get_image_url_from_response_failure(self):
+        mock_response = MagicMock()
+        mock_response.data = []
+        url = get_image_url_from_response(mock_response)
+        self.assertIsNone(url)
+
+    def test_is_valid_image_url(self):
+        self.assertTrue(is_valid_image_url('http://example.com/image.png'))
+        self.assertTrue(is_valid_image_url('https://example.com/image.jpg'))
+        self.assertFalse(is_valid_image_url('ftp://example.com/image.png'))
+        self.assertFalse(is_valid_image_url('http://example.com/image.txt'))
+        self.assertFalse(is_valid_image_url(None))
 
 if __name__ == '__main__':
     unittest.main() 
