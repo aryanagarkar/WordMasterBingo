@@ -1,3 +1,10 @@
+"""
+test_check_definitions_and_synonyms.py
+-------------------------------------
+Unit tests for CheckDefinitionsAndSynonyms. Tests prompt building, refinement logic, and file I/O.
+Mocks the OpenAI API call for logic tests and uses temporary files for file I/O.
+"""
+
 import os
 import tempfile
 import pytest
@@ -11,22 +18,36 @@ from src.check_definitions_and_synonyms import (
 )
 
 def mock_openai_response_factory(content):
+    """
+    Returns a mock send_text_completion_request function that always returns the given content in OpenAI response format.
+    """
+
     def mock_send_text_completion_request(prompt):
-        # Return a valid OpenAI-like response
+        """
+        Always returns a fixed OpenAI-style response with the provided content, regardless of the prompt.
+        """
+        
         return '{"choices": [{"message": {"content": "%s"}}]}' % content
     return mock_send_text_completion_request
 
 def test_check_grade_level():
+    """
+    Test that check_grade_level builds the correct prompt and returns the expected mock response.
+    """
+
     checker = CheckDefinitionsAndSynonyms(send_text_completion_request=mock_openai_response_factory("yes: ok"))
     result = checker.check_grade_level("word", 1, 5)
     assert "yes" in result
     assert "ok" in result
     prompt = GRADE_PROMPT_TEMPLATE.format(synonym="word", min_grade=1, max_grade=5)
-    # The prompt is built correctly
     assert "word" in prompt
     assert "1" in prompt and "5" in prompt
 
 def test_check_synonym_matches_definition():
+    """
+    Test that check_synonym_matches_definition builds the correct prompt and returns the expected mock response.
+    """
+
     checker = CheckDefinitionsAndSynonyms(send_text_completion_request=mock_openai_response_factory("yes: match"))
     result = checker.check_synonym_matches_definition("syn", "def")
     assert "yes" in result
@@ -35,6 +56,10 @@ def test_check_synonym_matches_definition():
     assert "syn" in prompt and "def" in prompt
 
 def test_check_definition_matches_word():
+    """
+    Test that check_definition_matches_word builds the correct prompt and returns the expected mock response.
+    """
+
     checker = CheckDefinitionsAndSynonyms(send_text_completion_request=mock_openai_response_factory("yes: match"))
     result = checker.check_definition_matches_word("word", "def")
     assert "yes" in result
@@ -43,8 +68,15 @@ def test_check_definition_matches_word():
     assert "word" in prompt and "def" in prompt
 
 def test_refine_definition_success():
-    # Always returns yes
+    """
+    Test that refine_definition returns the initial definition if the check passes on the first try.
+    """
+
     def mock_call(prompt):
+        """
+        Returns 'yes: good' for checks, and 'improved definition' if a suggestion is requested.
+        """
+        
         if "Suggest a better" in prompt:
             return "improved definition"
         return "yes: good"
@@ -54,9 +86,16 @@ def test_refine_definition_success():
     assert result == "def"
 
 def test_refine_definition_improves():
-    # Returns no first, then yes
+    """
+    Test that refine_definition returns an improved definition if the initial check fails.
+    """
+
     responses = iter(["no", "improved definition", "yes: good"])
     def mock_call(prompt):
+        """
+        Returns a sequence of responses to simulate refinement: first 'no', then 'improved definition', then 'yes: good'.
+        """
+        
         return next(responses)
     checker = CheckDefinitionsAndSynonyms(send_text_completion_request=lambda prompt: "")
     checker.call_openai = mock_call
@@ -64,8 +103,15 @@ def test_refine_definition_improves():
     assert result == "improved definition"
 
 def test_refine_synonym_success():
-    # Always returns yes
+    """
+    Test that refine_synonym returns the initial synonym if the checks pass on the first try.
+    """
+
     def mock_call(prompt):
+        """
+        Always returns 'yes: good' to simulate passing all checks.
+        """
+        
         return "yes: good"
     checker = CheckDefinitionsAndSynonyms(send_text_completion_request=lambda prompt: "")
     checker.call_openai = mock_call
@@ -73,10 +119,18 @@ def test_refine_synonym_success():
     assert result == "syn"
 
 def test_refine_synonym_improves():
-    # Returns no first, then yes, then always yes
+    """
+    Test that refine_synonym returns the improved synonym if the initial checks fail, and tracks both before and after values.
+    """
+
     responses = iter(["no", "no", "yes: good"])
     prompts = []
     def mock_call(prompt):
+        """
+        Tracks all prompts and returns a sequence of responses to simulate refinement logic.
+        After the sequence, always returns 'yes: good'.
+        """
+        
         prompts.append(prompt)
         try:
             return next(responses)
@@ -85,14 +139,16 @@ def test_refine_synonym_improves():
     checker = CheckDefinitionsAndSynonyms(send_text_completion_request=lambda prompt: "")
     checker.call_openai = mock_call
     result = checker.refine_synonym("word", "def", "syn", 1, 5, 3)
-    # Check the final result is the improved value
     assert result == "yes: good"
-    # Check that the original synonym was tried first
     assert any("syn" in p for p in prompts)
-    # Check that the improved value was also used in a prompt
     assert any("yes: good" in p for p in prompts)
 
 def test_write_report_to_file_and_improved_words_file(monkeypatch):
+    """
+    Test that write_report_to_file and write_improved_words_file correctly write the expected content to files.
+    Uses temporary files to avoid side effects.
+    """
+    
     checker = CheckDefinitionsAndSynonyms(send_text_completion_request=mock_openai_response_factory("yes"))
     report = ["line1", "line2"]
     lines = ["improved1", "improved2"]

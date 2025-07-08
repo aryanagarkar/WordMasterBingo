@@ -1,3 +1,10 @@
+"""
+check_definitions_and_synonyms.py
+--------------------------------
+Provides the CheckDefinitionsAndSynonyms class for validating and refining word definitions and synonyms using the OpenAI API.
+Includes helpers for prompt building, response parsing, and file I/O. Designed for easy unit testing and mocking.
+"""
+
 import os
 import json
 from .openai_client import send_text_completion_request as real_send_text_completion_request
@@ -34,9 +41,25 @@ SUGGEST_SYNONYM_PROMPT_TEMPLATE = (
 
 class CheckDefinitionsAndSynonyms:
     def __init__(self, send_text_completion_request=real_send_text_completion_request):
+        """
+        Initialize the checker with a function to call the OpenAI API.
+        Args:
+            send_text_completion_request (callable): Function to send prompts to OpenAI (can be mocked for testing).
+        """
+
         self.send_text_completion_request = send_text_completion_request
 
     def run_check(self, input_file_path, output_file_path):
+        """
+        Main workflow for checking and refining definitions and synonyms:
+        1. Reads input file with word: definition, easy, medium, hard per line.
+        2. Refines each entry using OpenAI and builds a report.
+        3. Writes the report and improved words to output files.
+        Args:
+            input_file_path (str): Path to the input file.
+            output_file_path (str): Path to the report output file.
+        """
+
         if not os.path.exists(input_file_path):
             print(f"Error: Input file not found: {input_file_path}")
             return
@@ -56,6 +79,8 @@ class CheckDefinitionsAndSynonyms:
                     if len(def_and_syns) < 4:
                         print(f"Warning: Skipping line {line_number} - insufficient synonyms: {line.strip()}")
                         continue
+                    
+                    # Refine definition and synonyms using OpenAI
                     definition = self.refine_definition(word, def_and_syns[0], 3)
                     easy = self.refine_synonym(word, definition, def_and_syns[1], 1, 5, 3)
                     medium = self.refine_synonym(word, definition, def_and_syns[2], 6, 8, 3)
@@ -70,6 +95,18 @@ class CheckDefinitionsAndSynonyms:
         self.write_improved_words_file(improved_word_lines, improved_words_file_path)
 
     def generate_report_entry(self, word, definition, easy, medium, hard):
+        """
+        Build a formatted report entry for a word and its synonyms, including checks.
+        Args:
+            word (str): The word.
+            definition (str): The refined definition.
+            easy (str): Easy synonym.
+            medium (str): Medium synonym.
+            hard (str): Hard synonym.
+        Returns:
+            str: The formatted report entry.
+        """
+
         return (
             f"Word: {word}\n"
             f"  Definition: {definition}\n"
@@ -80,6 +117,13 @@ class CheckDefinitionsAndSynonyms:
         )
 
     def write_report_to_file(self, report, output_file_path):
+        """
+        Write the report entries to a file.
+        Args:
+            report (list of str): The report entries.
+            output_file_path (str): Path to the output file.
+        """
+
         try:
             with open(output_file_path, 'w', encoding='utf-8') as writer:
                 for entry in report:
@@ -90,18 +134,54 @@ class CheckDefinitionsAndSynonyms:
             print(f"Error writing to file: {e}")
 
     def check_grade_level(self, synonym, min_grade, max_grade):
+        """
+        Check if a synonym is appropriate for a given grade range using OpenAI.
+        Args:
+            synonym (str): The synonym to check.
+            min_grade (int): Minimum grade.
+            max_grade (int): Maximum grade.
+        Returns:
+            str: OpenAI's response.
+        """
+
         prompt = GRADE_PROMPT_TEMPLATE.format(synonym=synonym, min_grade=min_grade, max_grade=max_grade)
         return self.call_openai(prompt)
 
     def check_synonym_matches_definition(self, synonym, definition):
+        """
+        Check if a synonym matches a given definition using OpenAI.
+        Args:
+            synonym (str): The synonym to check.
+            definition (str): The definition to match.
+        Returns:
+            str: OpenAI's response.
+        """
+
         prompt = SYNONYM_DEF_PROMPT_TEMPLATE.format(synonym=synonym, definition=definition)
         return self.call_openai(prompt)
 
     def check_definition_matches_word(self, word, definition):
+        """
+        Check if a definition matches a word using OpenAI.
+        Args:
+            word (str): The word to check.
+            definition (str): The definition to match.
+        Returns:
+            str: OpenAI's response.
+        """
+
         prompt = WORD_DEF_PROMPT_TEMPLATE.format(word=word, definition=definition)
         return self.call_openai(prompt)
 
     def call_openai(self, prompt):
+        """
+        Send a prompt to OpenAI and parse the response content.
+        Args:
+            prompt (str): The prompt to send.
+        Returns:
+            str: The content from OpenAI's response, or an error message.
+        """
+
         try:
             response = self.send_text_completion_request(prompt)
             if response:
@@ -118,6 +198,16 @@ class CheckDefinitionsAndSynonyms:
             return f"Error: {e}"
 
     def refine_definition(self, word, initial_definition, max_tries):
+        """
+        Refine a definition by checking and, if needed, improving it using OpenAI.
+        Args:
+            word (str): The word being defined.
+            initial_definition (str): The initial definition.
+            max_tries (int): Maximum number of refinement attempts.
+        Returns:
+            str: The refined definition.
+        """
+
         definition = initial_definition
         for _ in range(max_tries):
             check = self.check_definition_matches_word(word, definition)
@@ -132,6 +222,19 @@ class CheckDefinitionsAndSynonyms:
         return definition
 
     def refine_synonym(self, word, definition, initial_synonym, min_grade, max_grade, max_tries):
+        """
+        Refine a synonym by checking and, if needed, improving it using OpenAI.
+        Args:
+            word (str): The word being defined.
+            definition (str): The definition to match.
+            initial_synonym (str): The initial synonym.
+            min_grade (int): Minimum grade for appropriateness.
+            max_grade (int): Maximum grade for appropriateness.
+            max_tries (int): Maximum number of refinement attempts.
+        Returns:
+            str: The refined synonym.
+        """
+
         synonym = initial_synonym
         for _ in range(max_tries):
             match_check = self.check_synonym_matches_definition(synonym, definition)
@@ -149,6 +252,13 @@ class CheckDefinitionsAndSynonyms:
         return synonym
 
     def write_improved_words_file(self, lines, file_path):
+        """
+        Write the improved word lines to a file.
+        Args:
+            lines (list of str): Improved word lines.
+            file_path (str): Path to the output file.
+        """
+        
         try:
             with open(file_path, 'w', encoding='utf-8') as writer:
                 for line in lines:
