@@ -15,16 +15,20 @@ from CardGraphics.src.image_generation import (
     PROMPT_TEMPLATE,
     USER_INPUT_PROMPT,
     FILENAME_TEMPLATE,
-    DEFAULT_MODEL,
-    DEFAULT_SIZE,
+    OPENAI_DEFAULT_MODEL,
+    DEFAULT_IMAGE_SIZE,
     NO_WORD_MSG,
     GENERATION_FAILED_MSG,
     DOWNLOAD_FAILED_MSG,
     IMAGE_SAVED_MSG,
     GENERATION_ERROR_MSG,
     DOWNLOAD_ERROR_MSG,
-    DEFINITION_INPUT_PROMPT
+    DEFINITION_INPUT_PROMPT,
+    generate_image_with_model,
+    ModelName,
+    GEMINI_IMAGE_MODEL
 )
+import base64
 
 class TestImageGeneration(unittest.TestCase):
     """Test cases for the image_generation module functions."""
@@ -34,8 +38,8 @@ class TestImageGeneration(unittest.TestCase):
         self.assertIsInstance(PROMPT_TEMPLATE, str)
         self.assertIsInstance(USER_INPUT_PROMPT, str)
         self.assertIsInstance(FILENAME_TEMPLATE, str)
-        self.assertIsInstance(DEFAULT_MODEL, str)
-        self.assertIsInstance(DEFAULT_SIZE, str)
+        self.assertIsInstance(OPENAI_DEFAULT_MODEL, str)
+        self.assertIsInstance(DEFAULT_IMAGE_SIZE, str)
         self.assertIsInstance(NO_WORD_MSG, str)
         self.assertIsInstance(GENERATION_FAILED_MSG, str)
         self.assertIsInstance(DOWNLOAD_FAILED_MSG, str)
@@ -76,6 +80,16 @@ class TestImageGeneration(unittest.TestCase):
         # Test with special characters
         result = create_filename("can't")
         expected = FILENAME_TEMPLATE.format(word="can't")
+        self.assertEqual(result, expected)
+
+        # Test with model name for OpenAI
+        result = create_filename("dog", "openai")
+        expected = FILENAME_TEMPLATE.replace('.png', '_openai.png').format(word="dog")
+        self.assertEqual(result, expected)
+
+        # Test with model name for Gemini
+        result = create_filename("dog", "gemini")
+        expected = FILENAME_TEMPLATE.replace('.png', '_gemini.png').format(word="dog")
         self.assertEqual(result, expected)
 
     @patch('builtins.input', side_effect=["testword", "test definition"])
@@ -123,10 +137,10 @@ class TestImageGeneration(unittest.TestCase):
         
         self.assertEqual(result, "https://example.com/test.png")
         mock_client.images.generate.assert_called_once_with(
-            model=DEFAULT_MODEL,
+            model=OPENAI_DEFAULT_MODEL,
             prompt="test prompt",
             n=1,
-            size=DEFAULT_SIZE
+            size=DEFAULT_IMAGE_SIZE
         )
 
     @patch('CardGraphics.src.image_generation.client')
@@ -229,8 +243,8 @@ class TestImageGeneration(unittest.TestCase):
 
     def test_constant_values(self):
         """Test that constants have expected values."""
-        self.assertEqual(DEFAULT_MODEL, "dall-e-3")
-        self.assertEqual(DEFAULT_SIZE, "1024x1024")
+        self.assertEqual(OPENAI_DEFAULT_MODEL, "dall-e-3")
+        self.assertEqual(DEFAULT_IMAGE_SIZE, "1024x1024")
         self.assertIn("simple, clear, and realistic", PROMPT_TEMPLATE)
         self.assertIn("illustration", PROMPT_TEMPLATE)
         self.assertIn("_for_child.png", FILENAME_TEMPLATE)
@@ -253,6 +267,81 @@ class TestImageGeneration(unittest.TestCase):
         self.assertFalse(is_valid_image_url('ftp://example.com/image.png'))
         self.assertFalse(is_valid_image_url('http://example.com/image.txt'))
         self.assertFalse(is_valid_image_url(None))
+
+    @patch('CardGraphics.src.image_generation.requests.post')
+    def test_generate_image_gemini_success(self, mock_post):
+        """Test successful Gemini image generation (image + text)."""
+        # Prepare a fake image and text
+        fake_image_bytes = b"fakeimagebytes"
+        fake_image_b64 = base64.b64encode(fake_image_bytes).decode()
+        fake_text = "Here is your image."
+        mock_post.return_value = MagicMock(
+            status_code=200,
+            json=lambda: {
+                "candidates": [{
+                    "content": {
+                        "parts": [
+                            {"inlineData": {"data": fake_image_b64}},
+                            {"text": fake_text}
+                        ]
+                    }
+                }]
+            },
+            raise_for_status=lambda: None
+        )
+        from CardGraphics.src.image_generation import generate_image_gemini
+        result = generate_image_gemini("test prompt")
+        self.assertIsInstance(result, dict)
+        self.assertEqual(result["image_bytes"], fake_image_bytes)
+        self.assertEqual(result["text"], fake_text)
+
+    @patch('CardGraphics.src.image_generation.requests.post')
+    def test_generate_image_gemini_failure(self, mock_post):
+        """Test Gemini image generation failure (no image in response)."""
+        mock_post.return_value = MagicMock(
+            status_code=200,
+            json=lambda: {"candidates": [{"content": {"parts": [{"text": "No image"}]}}]},
+            raise_for_status=lambda: None
+        )
+        from CardGraphics.src.image_generation import generate_image_gemini
+        result = generate_image_gemini("test prompt")
+        self.assertIsNone(result)
+
+    @patch('CardGraphics.src.image_generation.generate_image_openai')
+    def test_generate_image_with_model_openai(self, mock_openai):
+        """Test dispatcher for OpenAI model."""
+        mock_openai.return_value = "https://example.com/openai.png"
+        result = generate_image_with_model("prompt", ModelName.OPENAI)
+        self.assertEqual(result, "https://example.com/openai.png")
+        mock_openai.assert_called_once()
+
+    @patch('CardGraphics.src.image_generation.generate_image_gemini')
+    def test_generate_image_with_model_gemini(self, mock_gemini):
+        """Test dispatcher for Gemini model."""
+        mock_gemini.return_value = {"image_bytes": b"img", "text": "desc"}
+        result = generate_image_with_model("prompt", ModelName.GEMINI)
+        self.assertEqual(result, {"image_bytes": b"img", "text": "desc"})
+        mock_gemini.assert_called_once()
+
+    def test_generate_image_with_model_invalid(self):
+        """Test dispatcher with invalid model name."""
+        with self.assertRaises(ValueError):
+            generate_image_with_model("prompt", "notamodel")
+
+    @patch('CardGraphics.src.image_generation.open', new_callable=mock_open)
+    def test_gemini_image_file_write(self, mock_file):
+        """Test that Gemini image bytes are written to file correctly."""
+        # Simulate the main logic for Gemini file writing
+        filename = "testfile.png"
+        image_bytes = b"imgdata"
+        result = {"image_bytes": image_bytes, "text": "desc"}
+        # Write to file
+        with patch('builtins.open', mock_open()) as m:
+            with open(filename, "wb") as f:
+                f.write(result["image_bytes"])
+            m.assert_called_with(filename, "wb")
+            handle = m()
+            handle.write.assert_called_once_with(image_bytes)
 
 if __name__ == '__main__':
     unittest.main() 
