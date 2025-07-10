@@ -10,7 +10,7 @@ from typing import Optional
 from pathlib import Path
 
 # File paths.
-WORDS_FILE = "/Users/aryanagarkar/Workspace/LingoBingo/WordAndDefinitionGenerator/OpenAIIntegration/WordDefinitionsAndSynonyms.txt"
+WORDS_FILE = "/Users/aryanagarkar/Workspace/LingoBingo/OpenAIIntegration/Resources/WordDefinitionsAndSynonyms.txt"
 WORDCARDS_DIR = Path(__file__).parent.parent / "WordCards"
 
 # Card dimensions (2.5x3.5 inches at 96 DPI).

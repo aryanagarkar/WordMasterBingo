@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import List
 
 # File paths.
-WORDS_FILE = "/Users/aryanagarkar/Workspace/LingoBingo/WordAndDefinitionGenerator/OpenAIIntegration/WordDefinitionsAndSynonyms.txt"
+WORDS_FILE = "/Users/aryanagarkar/Workspace/LingoBingo/OpenAIIntegration/Resources/WordDefinitionsAndSynonyms.txt"
 LOGO_BASE_PATH = Path(__file__).parent.parent
 BINGOCARDS_DIR = Path(__file__).parent.parent / "BingoCards"
 

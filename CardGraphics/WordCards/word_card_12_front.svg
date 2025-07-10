@@ -37,8 +37,12 @@ font-family=".AppleSystemUIFont" font-size="17.3333" font-weight="400" font-styl
 <g fill="#000000" fill-opacity="1" stroke="#fbdc6a" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(1,0,0,1,0,0)"
 font-family="Arbutus Slab" font-size="20" font-weight="400" font-style="normal" 
 >
-<text fill="#fbdc6a" fill-opacity="1" stroke="none" xml:space="preserve" x="36.2813" y="54.625" font-family="Arbutus Slab" font-size="20" font-weight="400" font-style="normal" 
- >Joking or playful</text>
+<text fill="#fbdc6a" fill-opacity="1" stroke="none" xml:space="preserve" x="41.5469" y="54.625" font-family="Arbutus Slab" font-size="20" font-weight="400" font-style="normal" 
+ >A person who is</text>
+<text fill="#fbdc6a" fill-opacity="1" stroke="none" xml:space="preserve" x="27.2188" y="79.625" font-family="Arbutus Slab" font-size="20" font-weight="400" font-style="normal" 
+ >lacking in common</text>
+<text fill="#fbdc6a" fill-opacity="1" stroke="none" xml:space="preserve" x="29.3906" y="104.625" font-family="Arbutus Slab" font-size="20" font-weight="400" font-style="normal" 
+ >sense or is gullible</text>
 </g>
 </g>
 </svg>
