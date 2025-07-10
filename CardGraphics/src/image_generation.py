@@ -23,6 +23,7 @@ PROMPT_TEMPLATE = (
     "A simple, clear, and literal illustration of the word '{word}': {definition}. "
     "Use the definition provided to determine the meaning. "
     "Show only the most direct, universally recognized visual representation of the word as defined. "
+    "The image should be a white line drawing with a black background. "
     "Do not use other meanings of the word. "
     "No text, no letters, no extra objects, no crowds, no cartoonish style, no unrelated people. "
     "The image should be immediately understandable to a child, with no ambiguity. "
