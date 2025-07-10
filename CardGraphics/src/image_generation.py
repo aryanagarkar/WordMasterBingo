@@ -21,13 +21,12 @@ API_KEY_ERROR_MSG = "Error: Please set your OpenAI API key in the OPENAI_API_KEY
 GEMINI_API_KEY_ERROR_MSG = f"Error: Please set your Gemini API key in the {GEMINI_API_KEY_ENV_VAR} environment variable."
 PROMPT_TEMPLATE = (
     "A simple, clear, and literal illustration of the word '{word}': {definition}. "
-    "Show only the most direct, universally recognized visual representation of the word. "
-    "If the word is an object, show only that object on a plain white background. "
-    "If the word is an emotion, quality, or abstract concept, use a universally recognized symbol, object, or simple scene that best represents the word—do not default to people laughing or generic faces unless the word specifically means a person. "
+    "Use the definition provided to determine the meaning. "
+    "Show only the most direct, universally recognized visual representation of the word as defined. "
+    "Do not use other meanings of the word. "
     "No text, no letters, no extra objects, no crowds, no cartoonish style, no unrelated people. "
     "The image should be immediately understandable to a child, with no ambiguity. "
-    "Do not use subtle or abstract representations. If using a symbol or object, make it obvious and easily recognized for the word. "
-    "If the word is an action (like 'examine'), show the action being performed on an object, not just the tool."
+    "Do not use subtle or abstract representations. If using a symbol or object, make it obvious and easily recognized for the word as defined."
 )
 USER_INPUT_PROMPT = "Enter a word to illustrate: "
 DEFINITION_INPUT_PROMPT = "Enter the definition for the word: "
@@ -288,6 +287,7 @@ def main():
             with open(gemini_filename, "wb") as f:
                 f.write(gemini_result["image_bytes"])
             print(f"[Gemini] {IMAGE_SAVED_MSG.format(filename=gemini_filename)}")
+            
             # Optionally print Gemini's explanation if present
             # if gemini_result["text"]:
             #     print(f"Gemini also said: {gemini_result['text']}")
