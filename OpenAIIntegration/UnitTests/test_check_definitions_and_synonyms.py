@@ -67,6 +67,39 @@ def test_check_definition_matches_word():
     prompt = WORD_DEF_PROMPT_TEMPLATE.format(word="word", definition="def")
     assert "word" in prompt and "def" in prompt
 
+def test_has_duplicate_in_definition():
+    checker = CheckDefinitionsAndSynonyms(send_text_completion_request=lambda prompt: "")
+    # Should match as whole word, case-insensitive
+    assert checker.has_duplicate_in_definition("A runner is someone who runs.", ["runner"]) is True
+    assert checker.has_duplicate_in_definition("A runner is someone who runs.", ["run"]) is False
+    assert checker.has_duplicate_in_definition("A RUNNER is someone who runs.", ["runner"]) is True
+    assert checker.has_duplicate_in_definition("A runner is someone who runs.", ["Runner"]) is True
+    assert checker.has_duplicate_in_definition("A runner is someone who runs.", ["cat"]) is False
+    # Multiple words
+    assert checker.has_duplicate_in_definition("A runner is someone who runs.", ["cat", "runner"]) is True
+    assert checker.has_duplicate_in_definition("A runner is someone who runs.", ["cat", "dog"]) is False
+
+
+def test_refine_definition_duplicate_triggers_improvement():
+    """
+    Test that refine_definition requests a new definition if a duplicate is found (word or synonym in definition).
+    """
+    # First call: duplicate found, so suggest improvement
+    # Second call: no duplicate, check returns 'yes: good', so accept
+    calls = []
+    def mock_call(prompt):
+        calls.append(prompt)
+        if "Suggest a better" in prompt:
+            return "improved definition"
+        return "yes: good"
+    checker = CheckDefinitionsAndSynonyms(send_text_completion_request=lambda prompt: "")
+    checker.call_openai = mock_call
+    # The word 'word' is in the definition, so it should trigger improvement
+    result = checker.refine_definition("word", "A word is a unit of language.", 2, synonyms=["unit", "language", "other"])
+    assert result == "improved definition"
+    # The improved definition should not trigger the duplicate logic again (simulate no duplicate)
+    assert any("Suggest a better" in c for c in calls)
+
 def test_refine_definition_success():
     """
     Test that refine_definition returns the initial definition if the check passes on the first try.
@@ -167,3 +200,127 @@ def test_write_report_to_file_and_improved_words_file(monkeypatch):
     finally:
         os.remove(report_path)
         os.remove(words_path) 
+
+def test_files_are_identical():
+    """
+    Test that _files_are_identical correctly compares files.
+    """
+    checker = CheckDefinitionsAndSynonyms(send_text_completion_request=lambda prompt: "")
+    
+    # Create temporary files for testing
+    with tempfile.NamedTemporaryFile(mode='w', delete=False) as f1, tempfile.NamedTemporaryFile(mode='w', delete=False) as f2, tempfile.NamedTemporaryFile(mode='w', delete=False) as f3:
+        f1.write("same content")
+        f2.write("same content")
+        f3.write("different content")
+        file1_path = f1.name
+        file2_path = f2.name
+        file3_path = f3.name
+    
+    try:
+        # Test identical files
+        assert checker._files_are_identical(file1_path, file2_path) is True
+        # Test different files
+        assert checker._files_are_identical(file1_path, file3_path) is False
+        # Test with non-existent file
+        assert checker._files_are_identical(file1_path, "nonexistent.txt") is False
+    finally:
+        os.remove(file1_path)
+        os.remove(file2_path)
+        os.remove(file3_path)
+
+
+def test_run_recursive_check_stops_on_no_changes():
+    """
+    Test that run_recursive_check stops when no changes are detected.
+    """
+    # Mock the run_check method to simulate no changes after first pass
+    original_run_check = CheckDefinitionsAndSynonyms.run_check
+    original_files_are_identical = CheckDefinitionsAndSynonyms._files_are_identical
+    
+    def mock_run_check(self, input_file_path, output_file_path):
+        # Create a mock improved file for the first pass
+        improved_path = os.path.join(os.path.dirname(input_file_path), 'WordDefinitionsAndSynonyms_Improved.txt')
+        with open(improved_path, 'w') as f:
+            f.write("improved content")
+    
+    def mock_files_are_identical(self, file1_path, file2_path):
+        # Simulate that files are identical (no changes)
+        return True
+    
+    try:
+        CheckDefinitionsAndSynonyms.run_check = mock_run_check
+        CheckDefinitionsAndSynonyms._files_are_identical = mock_files_are_identical
+        
+        checker = CheckDefinitionsAndSynonyms(send_text_completion_request=lambda prompt: "")
+        
+        # Create a temporary input file
+        with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+            f.write("test content")
+            input_path = f.name
+        
+        with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+            output_path = f.name
+        
+        try:
+            checker.run_recursive_check(input_path, output_path, max_passes=3)
+            # Should stop after first pass due to no changes
+        finally:
+            os.remove(input_path)
+            os.remove(output_path)
+            # Clean up the mock improved file
+            improved_path = os.path.join(os.path.dirname(input_path), 'WordDefinitionsAndSynonyms_Improved.txt')
+            if os.path.exists(improved_path):
+                os.remove(improved_path)
+    finally:
+        # Restore original methods
+        CheckDefinitionsAndSynonyms.run_check = original_run_check
+        CheckDefinitionsAndSynonyms._files_are_identical = original_files_are_identical
+
+
+def test_run_recursive_check_continues_on_changes():
+    """
+    Test that run_recursive_check continues when changes are detected.
+    """
+    # Mock the run_check method to simulate changes
+    original_run_check = CheckDefinitionsAndSynonyms.run_check
+    original_files_are_identical = CheckDefinitionsAndSynonyms._files_are_identical
+    
+    def mock_run_check(self, input_file_path, output_file_path):
+        # Create a mock improved file
+        improved_path = os.path.join(os.path.dirname(input_file_path), 'WordDefinitionsAndSynonyms_Improved.txt')
+        with open(improved_path, 'w') as f:
+            f.write(f"improved content for {input_file_path}")
+    
+    def mock_files_are_identical(self, file1_path, file2_path):
+        # Simulate that files are different (changes detected)
+        return False
+    
+    try:
+        CheckDefinitionsAndSynonyms.run_check = mock_run_check
+        CheckDefinitionsAndSynonyms._files_are_identical = mock_files_are_identical
+        
+        checker = CheckDefinitionsAndSynonyms(send_text_completion_request=lambda prompt: "")
+        
+        # Create a temporary input file
+        with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+            f.write("test content")
+            input_path = f.name
+        
+        with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+            output_path = f.name
+        
+        try:
+            checker.run_recursive_check(input_path, output_path, max_passes=2)
+            # Should run for max_passes since changes are always detected
+        finally:
+            os.remove(input_path)
+            os.remove(output_path)
+            # Clean up mock improved files
+            for i in range(2):
+                improved_path = os.path.join(os.path.dirname(input_path), f'WordDefinitionsAndSynonyms_Improved.txt')
+                if os.path.exists(improved_path):
+                    os.remove(improved_path)
+    finally:
+        # Restore original methods
+        CheckDefinitionsAndSynonyms.run_check = original_run_check
+        CheckDefinitionsAndSynonyms._files_are_identical = original_files_are_identical 

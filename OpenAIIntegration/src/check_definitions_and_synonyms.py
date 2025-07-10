@@ -7,6 +7,7 @@ Includes helpers for prompt building, response parsing, and file I/O. Designed f
 
 import os
 import json
+import re
 from .openai_client import send_text_completion_request as real_send_text_completion_request
 
 GRADE_REFERENCE_1_5 = "words like 'forgiveness', 'upset', and 'disaster' are appropriate for grades 1-5"
@@ -75,19 +76,20 @@ class CheckDefinitionsAndSynonyms:
                         print(f"Warning: Skipping malformed line {line_number}: {line.strip()}")
                         continue
                     word = parts[0].strip()
-                    def_and_syns = [x.strip() for x in parts[1].split(',')]
+                    # Parse definition and synonyms using pipe separator
+                    def_and_syns = [x.strip() for x in parts[1].split('|')]
                     if len(def_and_syns) < 4:
                         print(f"Warning: Skipping line {line_number} - insufficient synonyms: {line.strip()}")
                         continue
                     
                     # Refine definition and synonyms using OpenAI
-                    definition = self.refine_definition(word, def_and_syns[0], 3)
+                    definition = self.refine_definition(word, def_and_syns[0], 3, synonyms=def_and_syns[1:4])
                     easy = self.refine_synonym(word, definition, def_and_syns[1], 1, 5, 3)
                     medium = self.refine_synonym(word, definition, def_and_syns[2], 6, 8, 3)
                     hard = self.refine_synonym(word, definition, def_and_syns[3], 9, 12, 3)
                     report_entry = self.generate_report_entry(word, definition, easy, medium, hard)
                     report.append(report_entry)
-                    improved_word_lines.append(f"{word}: {definition}, {easy}, {medium}, {hard}")
+                    improved_word_lines.append(f"{word}: {definition}|{easy}|{medium}|{hard}")
                 except Exception as e:
                     print(f"Error processing line {line_number}: {e}")
         self.write_report_to_file(report, output_file_path)
@@ -197,19 +199,43 @@ class CheckDefinitionsAndSynonyms:
         except Exception as e:
             return f"Error: {e}"
 
-    def refine_definition(self, word, initial_definition, max_tries):
+    def has_duplicate_in_definition(self, definition, words_to_check):
+        """
+        Returns True if any word in words_to_check appears as a whole word (case-insensitive) in the definition.
+        """
+        for w in words_to_check:
+            if not w:
+                continue
+            pattern = r'\b' + re.escape(w) + r'\b'
+            if re.search(pattern, definition, re.IGNORECASE):
+                return True
+        return False
+
+    def refine_definition(self, word, initial_definition, max_tries, synonyms=None):
         """
         Refine a definition by checking and, if needed, improving it using OpenAI.
         Args:
             word (str): The word being defined.
             initial_definition (str): The initial definition.
             max_tries (int): Maximum number of refinement attempts.
+            synonyms (list of str, optional): List of synonyms to check for duplication in the definition.
         Returns:
             str: The refined definition.
         """
 
         definition = initial_definition
+        if synonyms is None:
+            synonyms = []
+        words_to_check = [word] + synonyms
         for _ in range(max_tries):
+            if self.has_duplicate_in_definition(definition, words_to_check):
+                prompt = SUGGEST_DEF_PROMPT_TEMPLATE.format(word=word)
+                suggestion = self.call_openai(prompt)
+                if suggestion and "error" not in suggestion.lower():
+                    definition = suggestion.strip()
+                    continue
+                else:
+                    break
             check = self.check_definition_matches_word(word, definition)
             if "yes" in check.lower():
                 return definition
@@ -267,3 +293,54 @@ class CheckDefinitionsAndSynonyms:
             print(f"Improved words file written to: {file_path}")
         except Exception as e:
             print(f"Error writing improved words file: {e}") 
+
+    def run_recursive_check(self, input_file_path, output_file_path, max_passes=3):
+        """
+        Run the checker multiple times on the improved output until no changes are detected.
+        Args:
+            input_file_path (str): Path to the initial input file.
+            output_file_path (str): Path to the final report output file.
+            max_passes (int): Maximum number of refinement passes.
+        """
+        
+        current_input = input_file_path
+        improved_file_path = os.path.join(os.path.dirname(input_file_path), 'WordDefinitionsAndSynonyms_Improved.txt')
+        
+        for pass_num in range(1, max_passes + 1):
+            print(f"Starting refinement pass {pass_num}...")
+            
+            # Run the checker on the current input
+            self.run_check(current_input, output_file_path)
+            
+            # Check if the improved file was created
+            if not os.path.exists(improved_file_path):
+                print(f"No improved file created in pass {pass_num}. Stopping.")
+                break
+            
+            # Compare current input with improved output to detect changes
+            if self._files_are_identical(current_input, improved_file_path):
+                print(f"No changes detected in pass {pass_num}. Stopping recursive refinement.")
+                break
+            
+            print(f"Changes detected in pass {pass_num}. Continuing to next pass...")
+            
+            # Use the improved file as input for the next pass
+            current_input = improved_file_path
+        
+        print(f"Recursive refinement completed after {pass_num} passes.")
+    
+    def _files_are_identical(self, file1_path, file2_path):
+        """
+        Compare two files to see if they are identical.
+        Args:
+            file1_path (str): Path to first file.
+            file2_path (str): Path to second file.
+        Returns:
+            bool: True if files are identical, False otherwise.
+        """
+        try:
+            with open(file1_path, 'r', encoding='utf-8') as f1, open(file2_path, 'r', encoding='utf-8') as f2:
+                return f1.read() == f2.read()
+        except Exception as e:
+            print(f"Error comparing files: {e}")
+            return False 

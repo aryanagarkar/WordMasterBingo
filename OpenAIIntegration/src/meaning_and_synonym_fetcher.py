@@ -9,9 +9,12 @@ import json
 from .openai_client import send_text_completion_request as real_send_text_completion_request
 
 PROMPT_TEMPLATE = (
-    "Give me a simple Definition and 3 synonyms with difficulty level of easy, medium, and hard for the word '{word}', "
-    "Format the response as a comma separate list in a single line - "
-    "<put definition here>, <Easy synonym>, <Medium synonym>, <hard synonym>"
+    "Give me a simple Definition and 3 synonyms for the word '{word}' with the following rules: "
+    "The easy synonym should be a word appropriate for advanced grades 1 to 5, "
+    "the medium synonym should be the word itself ('{word}'), "
+    "and the hard synonym should be a word appropriate for advanced grades 9 to 12. "
+    "Format the response as a single line, separated by pipes: "
+    "<put definition here>|<Easy synonym (grades 1-5)>|<Medium synonym: the word itself>|<Hard synonym (grades 9-12)>"
 )
 
 def _build_prompt(word: str) -> str:

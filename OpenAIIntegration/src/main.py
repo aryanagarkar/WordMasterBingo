@@ -56,9 +56,9 @@ def main():
     except Exception as e:
         print(f"Error writing output file: {e}")
 
-    # Run the synonym and definition check, generating a report
+    # Run the recursive synonym and definition check, generating a report
     checker = CheckDefinitionsAndSynonyms()
-    checker.run_check(output_file_path, report_file_path)
+    checker.run_recursive_check(output_file_path, report_file_path, 5)
 
 if __name__ == "__main__":
     main() 
