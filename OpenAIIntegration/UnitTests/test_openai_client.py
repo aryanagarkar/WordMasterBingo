@@ -8,7 +8,7 @@ Mocks network calls and environment variables for isolation.
 import os
 import pytest
 from unittest.mock import Mock, patch
-from src import openai_client
+from OpenAIIntegration.src import openai_client
 
 def test_build_headers():
     """

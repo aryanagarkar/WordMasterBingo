@@ -2,7 +2,8 @@ import os
 import requests
 from openai import OpenAI
 from typing import Optional, Any
-from CardGraphics.src.model_name import ModelName
+from OpenAIIntegration.src.model_name import ModelName
+import base64
 
 # Model and API constants
 OPENAI_DEFAULT_MODEL = "dall-e-3"
@@ -23,7 +24,6 @@ PROMPT_TEMPLATE = (
     "A simple, clear, and literal illustration of the word '{word}': {definition}. "
     "Use the definition provided to determine the meaning. "
     "Show only the most direct, universally recognized visual representation of the word as defined. "
-    "The image should be a white line drawing with a black background. "
     "Do not use other meanings of the word. "
     "No text, no letters, no extra objects, no crowds, no cartoonish style, no unrelated people. "
     "The image should be immediately understandable to a child, with no ambiguity. "
@@ -179,7 +179,6 @@ def generate_image_openai(prompt, model=OPENAI_DEFAULT_MODEL, size=DEFAULT_IMAGE
         RuntimeError: If the API key is not set or the API call fails.
     """
 
-    from openai import OpenAI
     api_key = os.getenv(OPENAI_API_KEY_ENV_VAR)
     if not api_key:
         raise RuntimeError(API_KEY_ERROR_MSG)
@@ -199,7 +198,6 @@ def generate_image_gemini(prompt, model=GEMINI_IMAGE_MODEL):
         RuntimeError: If the API key is not set or the API call fails.
     """
 
-    import base64
     api_key = os.getenv(GEMINI_API_KEY_ENV_VAR)
     if not api_key:
         raise RuntimeError(GEMINI_API_KEY_ERROR_MSG)

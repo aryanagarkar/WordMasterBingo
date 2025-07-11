@@ -6,7 +6,7 @@ Mocks the OpenAI API call for isolation.
 """
 
 import pytest
-from src import meaning_and_synonym_fetcher as fetcher
+from OpenAIIntegration.src import meaning_and_synonym_fetcher as fetcher
 
 def test_build_prompt():
     """

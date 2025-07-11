@@ -8,7 +8,7 @@ Mocks the OpenAI API call for logic tests and uses temporary files for file I/O.
 import os
 import tempfile
 import pytest
-from src.check_definitions_and_synonyms import (
+from OpenAIIntegration.src.check_definitions_and_synonyms import (
     CheckDefinitionsAndSynonyms,
     GRADE_PROMPT_TEMPLATE,
     SYNONYM_DEF_PROMPT_TEMPLATE,

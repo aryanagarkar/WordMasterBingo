@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import patch, MagicMock, mock_open
 import tempfile
 import os
-from CardGraphics.src.image_generation import (
+from OpenAIIntegration.src.image_generation import (
     create_child_friendly_prompt,
     create_filename,
     download_image,
@@ -125,7 +125,7 @@ class TestImageGeneration(unittest.TestCase):
         result = get_user_input()
         self.assertIsNone(result)
 
-    @patch('CardGraphics.src.image_generation.client')
+    @patch('OpenAIIntegration.src.image_generation.client')
     def test_generate_image_success(self, mock_client):
         """Test successful image generation."""
         # Mock the OpenAI client response
@@ -143,7 +143,7 @@ class TestImageGeneration(unittest.TestCase):
             size=DEFAULT_IMAGE_SIZE
         )
 
-    @patch('CardGraphics.src.image_generation.client')
+    @patch('OpenAIIntegration.src.image_generation.client')
     def test_generate_image_failure(self, mock_client):
         """Test image generation failure."""
         # Mock the OpenAI client to raise an exception
@@ -153,7 +153,7 @@ class TestImageGeneration(unittest.TestCase):
         
         self.assertIsNone(result)
 
-    @patch('CardGraphics.src.image_generation.requests.get')
+    @patch('OpenAIIntegration.src.image_generation.requests.get')
     def test_download_image_success(self, mock_get):
         """Test successful image download."""
         # Mock the requests response
@@ -179,7 +179,7 @@ class TestImageGeneration(unittest.TestCase):
             if os.path.exists(temp_filename):
                 os.unlink(temp_filename)
 
-    @patch('CardGraphics.src.image_generation.requests.get')
+    @patch('OpenAIIntegration.src.image_generation.requests.get')
     def test_download_image_failure(self, mock_get):
         """Test image download failure."""
         # Mock requests to raise an exception
@@ -200,8 +200,7 @@ class TestImageGeneration(unittest.TestCase):
         self.assertIn("elephant", prompt)
         self.assertIn("trunk", prompt)
         self.assertEqual(filename, FILENAME_TEMPLATE.format(word="elephant"))
-        self.assertIn("realistic", prompt)
-        self.assertIn("plain or white", prompt)
+        self.assertIn("literal", prompt)
 
     def test_edge_cases(self):
         """Test edge cases and boundary conditions."""
@@ -245,7 +244,7 @@ class TestImageGeneration(unittest.TestCase):
         """Test that constants have expected values."""
         self.assertEqual(OPENAI_DEFAULT_MODEL, "dall-e-3")
         self.assertEqual(DEFAULT_IMAGE_SIZE, "1024x1024")
-        self.assertIn("simple, clear, and realistic", PROMPT_TEMPLATE)
+        self.assertIn("simple, clear, and literal", PROMPT_TEMPLATE)
         self.assertIn("illustration", PROMPT_TEMPLATE)
         self.assertIn("_for_child.png", FILENAME_TEMPLATE)
 
@@ -268,7 +267,7 @@ class TestImageGeneration(unittest.TestCase):
         self.assertFalse(is_valid_image_url('http://example.com/image.txt'))
         self.assertFalse(is_valid_image_url(None))
 
-    @patch('CardGraphics.src.image_generation.requests.post')
+    @patch('OpenAIIntegration.src.image_generation.requests.post')
     def test_generate_image_gemini_success(self, mock_post):
         """Test successful Gemini image generation (image + text)."""
         # Prepare a fake image and text
@@ -289,13 +288,13 @@ class TestImageGeneration(unittest.TestCase):
             },
             raise_for_status=lambda: None
         )
-        from CardGraphics.src.image_generation import generate_image_gemini
+        from OpenAIIntegration.src.image_generation import generate_image_gemini
         result = generate_image_gemini("test prompt")
         self.assertIsInstance(result, dict)
         self.assertEqual(result["image_bytes"], fake_image_bytes)
         self.assertEqual(result["text"], fake_text)
 
-    @patch('CardGraphics.src.image_generation.requests.post')
+    @patch('OpenAIIntegration.src.image_generation.requests.post')
     def test_generate_image_gemini_failure(self, mock_post):
         """Test Gemini image generation failure (no image in response)."""
         mock_post.return_value = MagicMock(
@@ -303,11 +302,11 @@ class TestImageGeneration(unittest.TestCase):
             json=lambda: {"candidates": [{"content": {"parts": [{"text": "No image"}]}}]},
             raise_for_status=lambda: None
         )
-        from CardGraphics.src.image_generation import generate_image_gemini
+        from OpenAIIntegration.src.image_generation import generate_image_gemini
         result = generate_image_gemini("test prompt")
         self.assertIsNone(result)
 
-    @patch('CardGraphics.src.image_generation.generate_image_openai')
+    @patch('OpenAIIntegration.src.image_generation.generate_image_openai')
     def test_generate_image_with_model_openai(self, mock_openai):
         """Test dispatcher for OpenAI model."""
         mock_openai.return_value = "https://example.com/openai.png"
@@ -315,7 +314,7 @@ class TestImageGeneration(unittest.TestCase):
         self.assertEqual(result, "https://example.com/openai.png")
         mock_openai.assert_called_once()
 
-    @patch('CardGraphics.src.image_generation.generate_image_gemini')
+    @patch('OpenAIIntegration.src.image_generation.generate_image_gemini')
     def test_generate_image_with_model_gemini(self, mock_gemini):
         """Test dispatcher for Gemini model."""
         mock_gemini.return_value = {"image_bytes": b"img", "text": "desc"}
@@ -328,7 +327,7 @@ class TestImageGeneration(unittest.TestCase):
         with self.assertRaises(ValueError):
             generate_image_with_model("prompt", "notamodel")
 
-    @patch('CardGraphics.src.image_generation.open', new_callable=mock_open)
+    @patch('builtins.open', new_callable=mock_open)
     def test_gemini_image_file_write(self, mock_file):
         """Test that Gemini image bytes are written to file correctly."""
         # Simulate the main logic for Gemini file writing
