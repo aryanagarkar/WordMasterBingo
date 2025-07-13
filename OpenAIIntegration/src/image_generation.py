@@ -269,7 +269,7 @@ def main():
 
     # Generate image using OpenAI
     openai_result = generate_image_with_model(prompt, ModelName.OPENAI)
-    openai_filename = create_filename(word, ModelName.OPENAI.value)
+    openai_filename = os.path.join("images", create_filename(word, ModelName.OPENAI.value))
     if openai_result:
         if download_image(openai_result, openai_filename):
             print(f"[OpenAI] {IMAGE_SAVED_MSG.format(filename=openai_filename)}")
@@ -280,7 +280,7 @@ def main():
 
     # Generate image using Gemini
     gemini_result = generate_image_with_model(prompt, ModelName.GEMINI)
-    gemini_filename = create_filename(word, ModelName.GEMINI.value)
+    gemini_filename = os.path.join("images", create_filename(word, ModelName.GEMINI.value))
     if gemini_result:
         try:
             with open(gemini_filename, "wb") as f:

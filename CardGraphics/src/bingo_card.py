@@ -10,6 +10,11 @@ from PySide6.QtSvg import QSvgRenderer, QSvgGenerator
 import re
 from pathlib import Path
 from typing import List
+import os
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from svglib.svglib import svg2rlg
+from reportlab.graphics import renderPDF
 
 # File paths.
 WORDS_FILE = "/Users/aryanagarkar/Workspace/LingoBingo/OpenAIIntegration/Resources/WordDefinitionsAndSynonyms.txt"
@@ -540,6 +545,82 @@ class BingoCard(QMainWindow):
             # Print error if patching fails.
             print(f"Error patching SVG {filename}: {e}")
 
+    @staticmethod
+    def generate_printable_pdf(svg_folder, output_pdf):
+        """
+        Generate a double-sided printable PDF from all SVGs in the given folder using CairoSVG and PyPDF2.
+        Page 1: all fronts in grid order.
+        Page 2: all backs, mirrored horizontally in each row for double-sided alignment.
+        Args:
+            svg_folder (str or Path): Folder containing SVG files.
+            output_pdf (str or Path): Output PDF file path.
+        """
+        import tempfile
+        import cairosvg
+        from PyPDF2 import PdfWriter, PdfReader
+        from reportlab.lib.pagesizes import letter
+        from reportlab.pdfgen import canvas
+        from pathlib import Path
+        import re
+
+        svg_folder = Path(svg_folder)
+        svg_files = sorted([f for f in svg_folder.iterdir() if f.suffix.lower() == '.svg'])
+        front_svgs = [f for f in svg_files if '_front' in f.stem]
+        back_svgs = [f for f in svg_files if '_back' in f.stem]
+        def extract_index(f):
+            m = re.search(r'_(\d+)_', f.stem)
+            return int(m.group(1)) if m else -1
+        front_svgs.sort(key=extract_index)
+        back_svgs.sort(key=extract_index)
+        card_w_in, card_h_in = 4, 5
+        page_w, page_h = letter
+        cards_per_row = 2
+        cards_per_col = 2
+        x_margin = (page_w - cards_per_row * card_w_in * 72) / 2
+        y_margin = (page_h - cards_per_col * card_h_in * 72) / 2
+        card_w = card_w_in * 72
+        card_h = card_h_in * 72
+
+        def make_page(card_svgs, mirrored=False):
+            # Create a blank PDF page
+            temp_page = tempfile.NamedTemporaryFile(delete=False, suffix='.pdf')
+            c = canvas.Canvas(temp_page.name, pagesize=letter)
+            for i, svg_path in enumerate(card_svgs):
+                if i >= cards_per_row * cards_per_col:
+                    break
+                row = (i % 4) // 2
+                col = (i % 4) % 2
+                if mirrored:
+                    col = cards_per_row - 1 - col
+                x = x_margin + col * card_w
+                y = page_h - y_margin - (row + 1) * card_h
+                # Convert SVG to PDF (single card)
+                temp_pdf = tempfile.NamedTemporaryFile(delete=False, suffix='.pdf')
+                cairosvg.svg2pdf(url=str(svg_path), write_to=temp_pdf.name, output_width=int(card_w), output_height=int(card_h))
+                temp_pdf.close()
+                # Overlay the card PDF onto the page
+                card_pdf = PdfReader(temp_pdf.name)
+                c.saveState()
+                c.doForm(c.beginFormXObject(x, y, card_w, card_h))
+                c.restoreState()
+                c.showPage()  # This is needed to flush the form, but we'll merge with PyPDF2 below
+                # Instead, merge with PyPDF2 after saving all cards
+            c.save()
+            return temp_page.name
+
+        # Create front and back pages as PDFs
+        front_page_pdf = make_page(front_svgs, mirrored=False)
+        back_page_pdf = make_page(back_svgs, mirrored=True)
+
+        # Merge the single-card PDFs onto the blank pages using PyPDF2
+        writer = PdfWriter()
+        for page_pdf in [front_page_pdf, back_page_pdf]:
+            page_reader = PdfReader(page_pdf)
+            for page in page_reader.pages:
+                writer.add_page(page)
+        with open(output_pdf, 'wb') as f_out:
+            writer.write(f_out)
+
 
 def get_words_by_difficulty(difficulty_enum):
     """
@@ -571,35 +652,69 @@ def create_bingo_cards():
     num_cards_per_difficulty = 16
     svg_files = []
 
-    for difficulty in [DifficultyLevel.EASY, DifficultyLevel.MEDIUM, DifficultyLevel.HARD]:
-        word_objs = get_words_by_difficulty(difficulty)
-        for i in range(num_cards_per_difficulty):
-            # Select words for this card.
-            if len(word_objs) >= WORDS_PER_CARD:
-                selected_words = random.sample(word_objs, WORDS_PER_CARD)
-            else:
-                # Repeat words if not enough available.
-                selected_words = (word_objs * (WORDS_PER_CARD // len(word_objs)) + 
-                                word_objs[:WORDS_PER_CARD % len(word_objs)])
+    # Original code:
+    # for difficulty in [DifficultyLevel.EASY, DifficultyLevel.MEDIUM, DifficultyLevel.HARD]:
+    #     word_objs = get_words_by_difficulty(difficulty)
+    #     for i in range(num_cards_per_difficulty):
+    #         # Select words for this card.
+    #         if len(word_objs) >= WORDS_PER_CARD:
+    #             selected_words = random.sample(word_objs, WORDS_PER_CARD)
+    #         else:
+    #             # Repeat words if not enough available.
+    #             selected_words = (word_objs * (WORDS_PER_CARD // len(word_objs)) + 
+    #                             word_objs[:WORDS_PER_CARD % len(word_objs)])
+    #
+    #         # Create back side.
+    #         card_back = BingoCard(BingoCardData(selected_words, difficulty=difficulty))
+    #         card_back.set_side('back')
+    #         card_back.show()
+    #         windows.append(card_back)
+    #         back_svg_path = str(BINGOCARDS_DIR / f"bingo_card_{difficulty.value}_{i}_back.svg")
+    #         card_back.save_as_svg(back_svg_path, side='back')
+    #         svg_files.append(back_svg_path)
+    #
+    #         # Create front side.
+    #         card_front = BingoCard(BingoCardData(selected_words, difficulty=difficulty))
+    #         card_front.set_side('front')
+    #         card_front.show()
+    #         windows.append(card_front)
+    #         front_svg_path = str(BINGOCARDS_DIR / f"bingo_card_{difficulty.value}_{i}_front.svg")
+    #         card_front.save_as_svg(front_svg_path, side='front')
+    #         svg_files.append(front_svg_path)
 
-            # Create back side.
-            card_back = BingoCard(BingoCardData(selected_words, difficulty=difficulty))
-            card_back.set_side('back')
-            card_back.show()
-            windows.append(card_back)
-            back_svg_path = str(BINGOCARDS_DIR / f"bingo_card_{difficulty.value}_{i}_back.svg")
-            card_back.save_as_svg(back_svg_path, side='back')
-            svg_files.append(back_svg_path)
+    # Test version: Only generate 4 cards for MEDIUM difficulty
+    difficulty = DifficultyLevel.MEDIUM
+    word_objs = get_words_by_difficulty(difficulty)
+    for i in range(4):  # Only generate 4 cards for testing
+        # Select words for this card.
+        if len(word_objs) >= WORDS_PER_CARD:
+            selected_words = random.sample(word_objs, WORDS_PER_CARD)
+        else:
+            # Repeat words if not enough available.
+            selected_words = (word_objs * (WORDS_PER_CARD // len(word_objs)) + 
+                            word_objs[:WORDS_PER_CARD % len(word_objs)])
 
-            # Create front side.
-            card_front = BingoCard(BingoCardData(selected_words, difficulty=difficulty))
-            card_front.set_side('front')
-            card_front.show()
-            windows.append(card_front)
-            front_svg_path = str(BINGOCARDS_DIR / f"bingo_card_{difficulty.value}_{i}_front.svg")
-            card_front.save_as_svg(front_svg_path, side='front')
-            svg_files.append(front_svg_path)
-    
+        # Create back side.
+        card_back = BingoCard(BingoCardData(selected_words, difficulty=difficulty))
+        card_back.set_side('back')
+        card_back.show()
+        windows.append(card_back)
+        back_svg_path = str(BINGOCARDS_DIR / f"bingo_card_{difficulty.value}_{i}_back.svg")
+        card_back.save_as_svg(back_svg_path, side='back')
+        svg_files.append(back_svg_path)
+
+        # Create front side.
+        card_front = BingoCard(BingoCardData(selected_words, difficulty=difficulty))
+        card_front.set_side('front')
+        card_front.show()
+        windows.append(card_front)
+        front_svg_path = str(BINGOCARDS_DIR / f"bingo_card_{difficulty.value}_{i}_front.svg")
+        card_front.save_as_svg(front_svg_path, side='front')
+        svg_files.append(front_svg_path)
+
+    # Generate the printable PDF after SVGs are created
+    BingoCard.generate_printable_pdf(BINGOCARDS_DIR, "CardGraphics/bingo_cards_printable.pdf")
+
     return app, windows, svg_files
 
 if __name__ == "__main__":

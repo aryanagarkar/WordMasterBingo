@@ -8,6 +8,11 @@ from CardGraphics.src.utils import Utils
 from CardGraphics.src.word import Word
 from typing import Optional
 from pathlib import Path
+import os
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from svglib.svglib import svg2rlg
+from reportlab.graphics import renderPDF
 
 # File paths.
 WORDS_FILE = "/Users/aryanagarkar/Workspace/LingoBingo/OpenAIIntegration/Resources/WordDefinitionsAndSynonyms.txt"
@@ -420,6 +425,59 @@ class WordCard(QMainWindow):
             # Print error if patching fails.
             print(f"Error patching SVG {filename}: {e}")
 
+    @staticmethod
+    def generate_printable_pdf(svg_folder, output_pdf):
+        """
+        Generate a double-sided printable PDF from all SVGs in the given folder.
+        Page 1: all fronts in grid order.
+        Page 2: all backs, mirrored horizontally in each row for double-sided alignment.
+        Args:
+            svg_folder (str or Path): Folder containing SVG files.
+            output_pdf (str or Path): Output PDF file path.
+        """
+        from reportlab.lib.units import inch
+        svg_folder = Path(svg_folder)
+        # Separate fronts and backs by filename
+        svg_files = sorted([f for f in svg_folder.iterdir() if f.suffix.lower() == '.svg'])
+        front_svgs = [f for f in svg_files if '_front' in f.stem]
+        back_svgs = [f for f in svg_files if '_back' in f.stem]
+        # Sort by index in filename
+        def extract_index(f):
+            m = re.search(r'_(\d+)_', f.stem)
+            return int(m.group(1)) if m else -1
+        front_svgs.sort(key=extract_index)
+        back_svgs.sort(key=extract_index)
+        card_w, card_h = 2.5 * inch, 3.5 * inch
+        page_w, page_h = letter
+        cards_per_row = 3
+        cards_per_col = 3
+        x_margin = (page_w - cards_per_row * card_w) / 2
+        y_margin = (page_h - cards_per_col * card_h) / 2
+        c = canvas.Canvas(str(output_pdf), pagesize=letter)
+        # --- Page 1: Fronts ---
+        for i, svg_path in enumerate(front_svgs):
+            if i % 9 == 0 and i != 0:
+                c.showPage()
+            row = (i % 9) // 3
+            col = (i % 9) % 3
+            x = x_margin + col * card_w
+            y = page_h - y_margin - (row + 1) * card_h
+            drawing = svg2rlg(str(svg_path))
+            renderPDF.draw(drawing, c, x, y)
+        c.showPage()
+        # --- Page 2: Backs (mirrored horizontally) ---
+        for i, svg_path in enumerate(back_svgs):
+            if i % 9 == 0 and i != 0:
+                c.showPage()
+            row = (i % 9) // 3
+            col = (i % 9) % 3
+            mirrored_col = cards_per_row - 1 - col
+            x = x_margin + mirrored_col * card_w
+            y = page_h - y_margin - (row + 1) * card_h
+            drawing = svg2rlg(str(svg_path))
+            renderPDF.draw(drawing, c, x, y)
+        c.save()
+
 
 def create_word_cards():
     """
@@ -435,7 +493,27 @@ def create_word_cards():
     windows = []
     svg_files = []
 
-    for i, word in enumerate(words):
+    # Original code:
+    # for i, word in enumerate(words):
+    #     # Create back side of the card.
+    #     word_card_back = WordCard(WordCardData(word))
+    #     word_card_back.set_side('back')
+    #     word_card_back.show()
+    #     windows.append(word_card_back)
+    #     back_svg_path = str(WORDCARDS_DIR / f"word_card_{i}_back.svg")
+    #     word_card_back.save_as_svg(back_svg_path, side='back')
+    #     svg_files.append(back_svg_path)
+    #     # Create front side of the card.
+    #     word_card_front = WordCard(WordCardData(word))
+    #     word_card_front.set_side('front')
+    #     word_card_front.show()
+    #     windows.append(word_card_front)
+    #     front_svg_path = str(WORDCARDS_DIR / f"word_card_{i}_front.svg")
+    #     word_card_front.save_as_svg(front_svg_path, side='front')
+    #     svg_files.append(front_svg_path)
+
+    # Test version: Only generate 9 cards for testing
+    for i, word in enumerate(words[:9]):
         # Create back side of the card.
         word_card_back = WordCard(WordCardData(word))
         word_card_back.set_side('back')
@@ -453,6 +531,9 @@ def create_word_cards():
         front_svg_path = str(WORDCARDS_DIR / f"word_card_{i}_front.svg")
         word_card_front.save_as_svg(front_svg_path, side='front')
         svg_files.append(front_svg_path)
+
+    # Generate the printable PDF after SVGs are created
+    WordCard.generate_printable_pdf(WORDCARDS_DIR, "CardGraphics/word_cards_printable.pdf")
 
     return app, windows, svg_files
 
