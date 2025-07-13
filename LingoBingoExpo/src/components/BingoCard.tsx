@@ -9,14 +9,15 @@ import {
 import { WordData, DifficultyLevel, getWordByDifficulty } from '../data/wordData';
 
 const { width } = Dimensions.get('window');
-const cellSize = (width - 60) / 4; // 4x4 grid with margins
+const cellSize = Math.min((width - 80) / 4, 80); // 4x4 grid with margins, max 80px per cell
 
 interface BingoCardProps {
   words: WordData[];
   difficulty: DifficultyLevel;
   markedCells: boolean[][];
-  correctAnswers: boolean[][];
+  correctAnswers: (boolean | null)[][];
   onCellPress: (row: number, col: number) => void;
+  gamePhase: 'placing' | 'checking' | 'complete';
 }
 
 const BingoCard: React.FC<BingoCardProps> = ({
@@ -25,24 +26,40 @@ const BingoCard: React.FC<BingoCardProps> = ({
   markedCells,
   correctAnswers,
   onCellPress,
+  gamePhase,
 }) => {
   const renderCell = (row: number, col: number) => {
     const index = row * 4 + col;
     const word = words[index];
     const isMarked = markedCells[row]?.[col] || false;
-    const isCorrect = correctAnswers[row]?.[col] || false;
+    const isCorrect = correctAnswers[row]?.[col];
     
-    let cellStyle = styles.cell;
-    let textStyle = styles.cellText;
+    let cellStyle: any = styles.cell;
+    let textStyle: any = styles.cellText;
     
     if (isMarked) {
-      if (isCorrect) {
-        cellStyle = [styles.cell, styles.correctCell];
-        textStyle = [styles.cellText, styles.correctText];
-      } else {
-        cellStyle = [styles.cell, styles.incorrectCell];
-        textStyle = [styles.cellText, styles.incorrectText];
+      if (gamePhase === 'placing') {
+        // During placing phase, show green for marked cells
+        cellStyle = [styles.cell, styles.markedCell];
+        textStyle = [styles.cellText, styles.markedText];
+      } else if (gamePhase === 'checking' || gamePhase === 'complete') {
+        // During checking/complete phase, show correct/incorrect feedback
+        if (isCorrect === true) {
+          cellStyle = [styles.cell, styles.correctCell];
+          textStyle = [styles.cellText, styles.correctText];
+        } else {
+          cellStyle = [styles.cell, styles.incorrectCell];
+          textStyle = [styles.cellText, styles.incorrectText];
+        }
       }
+    } else if (isCorrect === true) {
+      // Show persistent correct tiles (green)
+      cellStyle = [styles.cell, styles.correctCell];
+      textStyle = [styles.cellText, styles.correctText];
+    } else if (isCorrect === false) {
+      // Show persistent incorrect tiles (red)
+      cellStyle = [styles.cell, styles.incorrectCell];
+      textStyle = [styles.cellText, styles.incorrectText];
     }
     
     return (
@@ -50,7 +67,7 @@ const BingoCard: React.FC<BingoCardProps> = ({
         key={`${row}-${col}`}
         style={cellStyle}
         onPress={() => onCellPress(row, col)}
-        disabled={isMarked}
+        disabled={gamePhase !== 'placing'}
       >
         <Text style={textStyle} numberOfLines={2}>
           {word ? getWordByDifficulty(word, difficulty) : ''}
@@ -83,20 +100,22 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
+    alignItems: 'center',
   },
   row: {
     flexDirection: 'row',
-    marginBottom: 8,
+    marginBottom: 0,
   },
   cell: {
     width: cellSize,
     height: cellSize,
     backgroundColor: '#f8f9fa',
-    borderRadius: 10,
+    borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 8,
-    borderWidth: 2,
+    marginRight: 6,
+    marginBottom: 6,
+    borderWidth: 1,
     borderColor: '#e9ecef',
   },
   cellText: {
@@ -105,6 +124,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#495057',
     paddingHorizontal: 4,
+  },
+  markedCell: {
+    backgroundColor: '#d4edda',
+    borderColor: '#28a745',
+  },
+  markedText: {
+    color: '#155724',
   },
   correctCell: {
     backgroundColor: '#d4edda',
@@ -119,6 +145,12 @@ const styles = StyleSheet.create({
   },
   incorrectText: {
     color: '#721c24',
+  },
+  debugText: {
+    fontSize: 10,
+    color: '#666',
+    textAlign: 'center',
+    marginTop: 5,
   },
 });
 
