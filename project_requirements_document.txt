@@ -1,0 +1,112 @@
+1. Project Overview:
+
+Game Title: LingoBingo
+Genre: Educational, Puzzle - bingo, Word Game, Casual
+
+Platforms: 
+- iOS 
+- Android
+- Web (for development/testing)
+
+Target Audience:
+- All school-aged children (elementary, middle, and high school).
+- College students and adults.
+- Anyone interested in expanding, improving, or polishing their vocabulary skills.
+- Teachers or educators who would like to teach or help students with vocabulary.
+
+Monetization Strategy:
+- The initial release of LingoBingo will be free to download and play.
+
+
+2. Goals and Objectives:
+
+Game Overview:
+LingoBingo is a vocabulary game designed for all ages, with easy, medium, and hard levels to help people learn words in a fun and compelling way. The main components are word cards, bingo cards, and colored tiles (yellow, red, and green).
+
+- Word Cards: Each word card has two sides. The front displays the definition and an image representing the word. The back shows the definition and three synonyms: an easy synonym (grades 1 – 5), the word itself (medium), and a hard synonym (grades 9 – 12).
+- Bingo Card: The bingo card features a 4x4 grid of randomly chosen words from the set provided.
+
+Gameplay: 
+The gamemaster (the app) displays a word card face-up (definition and image). Players check their bingo card and, if they think they have the word, place a yellow tile on it. Afterward, the word card is flipped to reveal the answer. If correct, the yellow tile is replaced with a green tile; if incorrect, it’s replaced with a red tile. The game continues with new word cards until the player achieves a bingo (a complete row, column, or diagonal). The game then ends, and the player can start a new round.
+
+Objectives:
+- Improve vocabulary skills for users of all ages and skill levels.
+- Make learning new words engaging and enjoyable through interactive gameplay.
+- Provide different difficulty levels (easy, medium, hard) to cater to a wide range of learners.
+- Support visual and contextual learning with images and definitions.
+- Encourage repeated play and self-improvement.
+- Focus on a single-player experience for the initial mobile app release.
+
+Success Metrics:
+- Number of Downloads/Installs
+- Daily Active Users (DAU)
+- Retention Rate
+- User Ratings & Reviews
+
+
+3. Gameplay & Core Mechanics:
+
+Core Loop:
+- The gamemaster (the app) displays a word card face-up (definition and image).
+- Player checks their bingo card for the matching word.
+- If the player thinks that they have the word, they place a yellow tile on it.
+- When the player is done placing the tile, the word card is flipped over to reveal the answer.
+- If correct, the yellow tile is replaced with a green tile; if incorrect, it is replaced with a red tile.
+- Repeat until the player achieves a bingo (complete row, column, or diagonal).
+
+Controls and Input:
+- Tap: Select word to placea yellow tile on and navigate menus.
+- Simple, touch-based controls optimized for mobile devices.
+
+Game Progression:
+- Endless play: Each game is a new bingo card with randomly selected words.
+- No traditional levels, but difficulty is set at the start (easy, medium, hard).
+- Players can play as many rounds as they like.
+
+Difficulty Progression:
+- Difficulty is chosen at the start (easy, medium, hard).
+- Harder difficulties use more challenging synonyms of the word.
+
+Losing States:
+- No traditional “lose” state; the game is about learning and improvement.
+- Players can see which words they missed (red tiles) and try again in a new round.
+
+Screens & Components:
+- Home Screen: Game title, start button, difficulty selection.
+- Game Screen: Displays the bingo card grid and current word card, plus a 'done' button for players after they select the word in their bingo grid. Players click on the word that they believe matches the defintion on the current word card to place a yellow tiles on it. After the answer is revealed, tiles are updated to green (correct) or red (incorrect).
+- Bingo Notification: Popup or animation when bingo is achieved.
+
+4.3. Game Logic
+- Bingo card generation: Randomly fill a 4x4 grid with words from a word list, based on selected difficulty.
+- Win detection: Check for completed rows, columns, or diagonals.
+- Word data: Each word has a definition, synonyms, and optional image.
+- Data source: Use OpenAI API for definitions/synonyms, images generated and/or saved from online.
+
+
+5. Technical Requirements:
+
+5.1. Frontend
+- React Native (Expo)
+- TypeScript
+- Navigation (React Navigation)
+- State management: Local state with React hooks (useState). May consider Context API or Redux if app complexity increases.
+
+5.2. Backend/Data
+- Python scripts for word processing and OpenAI integration.
+- Word data stored locally in the app to start with.
+
+5.3. APIs & Integrations
+- OpenAI API for definitions and synonyms.
+- Image storage (API generation, local assets, or remote URLs).
+
+
+6. Non-Functional Requirements
+- Responsive and intuitive UI/UX.
+- Fast card generation and smooth gameplay.
+- No personal data storage or tracking.
+
+
+7. Testing & QA
+- Unit tests for game logic (bingo detection, card generation).
+- UI tests for main screens and flows.
+- Manual testing on Android and iOS devices.
