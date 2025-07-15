@@ -46,67 +46,152 @@ Success Metrics:
 
 3. Gameplay & Core Mechanics:
 
-Core Loop:
-- The gamemaster (the app) displays a word card face-up (definition and image).
-- Player checks their bingo card for the matching word.
-- If the player thinks that they have the word, they place a yellow tile on it.
-- When the player is done placing the tile, the word card is flipped over to reveal the answer.
-- If correct, the yellow tile is replaced with a green tile; if incorrect, it is replaced with a red tile.
-- Repeat until the player achieves a bingo (complete row, column, or diagonal).
+Note: In the current implementation, "placing a tile" refers to the player simply clicking on a word cell and its color changing to indicate correctness (yellow for selection, green for correct, red for incorrect). Tile animations may be added in the future.
+
+User Flow:
+1. User opens the LingoBingo app.
+2. User selects a difficulty level (easy, medium, hard).
+3. User is presented with a new bingo card (4x4 grid of words).
+4. The app displays a word card (definition and image) at the top of the screen.
+5. User places a yellow tile on the word in their bingo grid that they believe matches the definition.
+6. User taps the “Done” button.
+7. The word card is flipped to reveal the answer.
+8. Tiles are updated to green (correct) or red (incorrect).
+9. Steps 4–8 repeat until the user achieves a bingo (row, column, or diagonal).
+10. Bingo notification/animation is shown.
+11. User can start a new game or return to the main menu.
+
+Tile Marking and Feedback Logic:
+When a word card is shown, the following scenarios can occur:
+1. Word IS on the bingo card, player places a tile on the correct word:
+   - The player places a tile on the correct word (matches the definition on the word card) on their bingo card.
+   - The tile turns green (correct).
+
+2. Word IS on the bingo card, player places a tile on the wrong word:
+   - The player places a tile on a word, but it does not match the definition on the word card.
+   - The tile turns red (incorrect).
+
+3. Word IS on the bingo card, player does not place a tile on the correct word:
+   - The player does not place a tile on the correct word that matches the definition on the word card (misses it).
+   - The tile for the correct word turns red (missed).
+
+4. Word IS NOT on the bingo card, player places a tile on any word:
+   - The player places a tile on a word, but the correct word (matches the definition on the word card) is not present on the bingo card.
+   - The tile that the player placed turns red (incorrect).
+
+5. Word IS NOT on the bingo card, player does not place a tile:
+   - The player does not place a tile on any word.
+   - This is correct; nothing changes, and the game continues.
 
 Controls and Input:
-- Tap: Select word to placea yellow tile on and navigate menus.
+- Tap: Place a tile on a word and navigate menus.
 - Simple, touch-based controls optimized for mobile devices.
+
+Screens & Components:
+- Home Screen: Game title, start button, difficulty selection.
+- Game Screen: Displays the bingo card grid and current word card, plus a 'done' button for players after they place a tile in their bingo grid. Players place a tile on the word that they believe matches the definition on the current word card. After the answer is revealed, tiles are updated to green (correct) or red (incorrect).
+- Bingo Notification: Popup or animation when bingo is achieved.
+
+UI/UX Details:
+- Tile colors: Yellow (#FBDC6A) for initial selection, Green (#7ED957) for correct, Red (#FF3131) for incorrect.
+- Background: White (#FFFFFF).
+- Font: Use 'Roboto' or system default, minimum size 15px for words.
+- Buttons: Rounded corners, primary color for background is Yellow (#FBDC6A) with Black text (#000000).
+- All elements centered horizontally.
+
+Layout: 
+- Word card at top, bingo grid centered, “Done” button below grid.
+- All game elements (word card, bingo grid, buttons, etc.) must fit on a single screen without requiring any vertical or horizontal scrolling, on all supported device sizes.
+- Elements should resize, reposition, or scale as needed to ensure everything is visible at once.
+- If the screen is too small, reduce padding, font size, or element size, but never require scrolling.
+
+Animations & Transitions:
+- Tiles change color instantly (no animation) in MVP.
+- Word card flips with a 0.5s animation when revealing the answer.
+- Bingo notification slides in from the top.
+- In the future, add tile placement animation and sound effects.
+
+Difficulty Progression:
+- Difficulty is chosen at the start (easy, medium, hard).
+- Harder difficulties use more challenging synonyms of the word.
 
 Game Progression:
 - Endless play: Each game is a new bingo card with randomly selected words.
 - No traditional levels, but difficulty is set at the start (easy, medium, hard).
 - Players can play as many rounds as they like.
 
-Difficulty Progression:
-- Difficulty is chosen at the start (easy, medium, hard).
-- Harder difficulties use more challenging synonyms of the word.
-
 Losing States:
 - No traditional “lose” state; the game is about learning and improvement.
 - Players can see which words they missed (red tiles) and try again in a new round.
 
-Screens & Components:
-- Home Screen: Game title, start button, difficulty selection.
-- Game Screen: Displays the bingo card grid and current word card, plus a 'done' button for players after they select the word in their bingo grid. Players click on the word that they believe matches the defintion on the current word card to place a yellow tiles on it. After the answer is revealed, tiles are updated to green (correct) or red (incorrect).
-- Bingo Notification: Popup or animation when bingo is achieved.
-
-4.3. Game Logic
+Game Logic:
 - Bingo card generation: Randomly fill a 4x4 grid with words from a word list, based on selected difficulty.
 - Win detection: Check for completed rows, columns, or diagonals.
 - Word data: Each word has a definition, synonyms, and optional image.
 - Data source: Use OpenAI API for definitions/synonyms, images generated and/or saved from online.
 
+Game Rules & Edge Cases:
+- Only one tile can be placed per word card displayed.
+- Player CANNOT change their answer after they place a tile (the cell should be unclickable) before pressing “Done.”
+- No time limit per round.
+- If user leaves or restarts, current game is lost and a new game starts.
+- After bingo, show a summary screen with score and option to play again.
+- If player tries to place a tile after “Done,” ignore input.
 
-5. Technical Requirements:
+5. Instructions and initial game (user has never played before):
+- Show a tutorial on first launch explaining the game instructions and flow (showing the user how to play).
+- “Help” button on home screen opens instructions modal.
+- Instructions include: how to play, what tile colors mean, and how to win.
 
-5.1. Frontend
-- React Native (Expo)
-- TypeScript
-- Navigation (React Navigation)
+6. Technical Requirements:
+
+Frontend:
+- React Native (Expo).
+- TypeScript.
+- Navigation (React Navigation).
 - State management: Local state with React hooks (useState). May consider Context API or Redux if app complexity increases.
 
-5.2. Backend/Data
+Backend/Data:
 - Python scripts for word processing and OpenAI integration.
 - Word data stored locally in the app to start with.
 
-5.3. APIs & Integrations
+APIs & Integrations:
 - OpenAI API for definitions and synonyms.
 - Image storage (API generation, local assets, or remote URLs).
 
+Word Data & Images:
+- Initial word list provided in WordDefinitionsAndSynonyms.txt in Resources subfolder (see Sample Content).
+- Each word has: word, definition, easy/medium/hard synonyms, optional image.
+- Images: Use provided images if available; if missing, show a default icon (e.g., 📚).
+    - The UI should be designed so that adding images in the future will be easy.
+- Synonyms: Only show the synonym that matches the selected difficulty (easy, medium, or hard) on the answer side of the word card.
+    - In future versions, consider an option to display all synonyms for multi-player gameplay and educational purposes.
 
-6. Non-Functional Requirements
+
+7. Non-Functional Requirements:
 - Responsive and intuitive UI/UX.
 - Fast card generation and smooth gameplay.
 - No personal data storage or tracking.
 
 
-7. Testing & QA
+8. Testing & QA:
 - Unit tests for game logic (bingo detection, card generation).
 - UI tests for main screens and flows.
 - Manual testing on Android and iOS devices.
+
+9. Sample Content:
+Absolution: Release from guilt or punishment|Forgiveness|Absolution|Exoneration
+Renounce: To give up power or a position|Quit|Renounce|Abdicate
+...
+Exonym: A name for a place, person, or group that is used by outsiders|Foreign Name|Exonym|Xenonym
+
+10. Glossary:
+- Bingo Card: The grid of words the player interacts with.
+- Word Tile: An individual word on the bingo card.
+- Matched: A word the player has marked as found.
+
+11. Future Roadmap / Stretch Goals:
+- Multiplayer mode (pass-and-play or online).
+- Leaderboards and achievements.
+- Multiple types of word lists (examples - PSAT, SAT prep, subject-specific jargon).
+- Advanced statistics and progress tracking.
