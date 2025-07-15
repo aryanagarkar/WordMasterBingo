@@ -44,7 +44,7 @@ Success Metrics:
 - User Ratings & Reviews
 
 
-3. Gameplay & Core Mechanics:
+3. Gameplay and Core Mechanics:
 
 Note: In the current implementation, "placing a tile" refers to the player simply clicking on a word cell and its color changing to indicate correctness (yellow for selection, green for correct, red for incorrect). Tile animations may be added in the future.
 
@@ -87,7 +87,7 @@ Controls and Input:
 - Tap: Place a tile on a word and navigate menus.
 - Simple, touch-based controls optimized for mobile devices.
 
-Screens & Components:
+Screens:
 - Home Screen: Game title, start button, difficulty selection.
 - Game Screen: Displays the bingo card grid and current word card, plus a 'done' button for players after they place a tile in their bingo grid. Players place a tile on the word that they believe matches the definition on the current word card. After the answer is revealed, tiles are updated to green (correct) or red (incorrect).
 - Bingo Notification: Popup or animation when bingo is achieved.
@@ -105,7 +105,7 @@ Layout:
 - Elements should resize, reposition, or scale as needed to ensure everything is visible at once.
 - If the screen is too small, reduce padding, font size, or element size, but never require scrolling.
 
-Animations & Transitions:
+Animations and Transitions:
 - Tiles change color instantly (no animation) in MVP.
 - Word card flips with a 0.5s animation when revealing the answer.
 - Bingo notification slides in from the top.
@@ -130,7 +130,7 @@ Game Logic:
 - Word data: Each word has a definition, synonyms, and optional image.
 - Data source: Use OpenAI API for definitions/synonyms, images generated and/or saved from online.
 
-Game Rules & Edge Cases:
+Game Rules and Edge Cases:
 - Only one tile can be placed per word card displayed.
 - Player CANNOT change their answer after they place a tile (the cell should be unclickable) before pressing “Done.”
 - No time limit per round.
@@ -159,7 +159,7 @@ APIs & Integrations:
 - OpenAI API for definitions and synonyms.
 - Image storage (API generation, local assets, or remote URLs).
 
-Word Data & Images:
+Word Data and Images:
 - Initial word list provided in WordDefinitionsAndSynonyms.txt in Resources subfolder (see Sample Content).
 - Each word has: word, definition, easy/medium/hard synonyms, optional image.
 - Images: Use provided images if available; if missing, show a default icon (e.g., 📚).
@@ -174,7 +174,7 @@ Word Data & Images:
 - No personal data storage or tracking.
 
 
-8. Testing & QA:
+8. Testing:
 - Unit tests for game logic (bingo detection, card generation).
 - UI tests for main screens and flows.
 - Manual testing on Android and iOS devices.
@@ -190,7 +190,7 @@ Exonym: A name for a place, person, or group that is used by outsiders|Foreign N
 - Word Tile: An individual word on the bingo card.
 - Matched: A word the player has marked as found.
 
-11. Future Roadmap / Stretch Goals:
+11. Future Goals:
 - Multiplayer mode (pass-and-play or online).
 - Leaderboards and achievements.
 - Multiple types of word lists (examples - PSAT, SAT prep, subject-specific jargon).
