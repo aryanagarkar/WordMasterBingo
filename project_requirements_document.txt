@@ -185,13 +185,26 @@ Renounce: To give up power or a position|Quit|Renounce|Abdicate
 ...
 Exonym: A name for a place, person, or group that is used by outsiders|Foreign Name|Exonym|Xenonym
 
-10. Glossary:
-- Bingo Card: The grid of words the player interacts with.
-- Word Tile: An individual word on the bingo card.
-- Matched: A word the player has marked as found.
-
-11. Future Goals:
+10. Future Goals:
 - Multiplayer mode (pass-and-play or online).
 - Leaderboards and achievements.
 - Multiple types of word lists (examples - PSAT, SAT prep, subject-specific jargon).
 - Advanced statistics and progress tracking.
+
+11. Glossary:
+- Bingo Card: The 4x4 grid containing randomly selected vocabulary words for the current game.
+- Word Tile: An individual cell on the bingo card, displaying a vocabulary word.
+- Word Card: The card displayed at the top of the screen, showing the definition (and image, if available) of the word to be matched.
+- Tile: The visual indicator (yellow, green, or red) placed on a word tile to show selection, correctness, or incorrectness.
+- Placing a Tile: The act of selecting a word tile, which changes its color to yellow (selected), green (correct), or red (incorrect).
+- Yellow Tile: Indicates the player’s selection before the answer is revealed.
+- Green Tile: Indicates a correct match after the answer is revealed.
+- Red Tile: Indicates an incorrect match or a missed correct word after the answer is revealed.
+- Game Phase: The current stage of the game (e.g., selection, checking, bingo achieved).
+- Difficulty Level: The chosen challenge level (easy, medium, hard), which determines the synonym shown and the word list used.
+- Bingo: Achieving a complete row, column, or diagonal of correct tiles on the bingo card.
+- Done Button: The button the player presses to submit their selection(s) for the current word card.
+- Bingo Notification: The popup or animation shown when the player achieves a bingo.
+- Score: The player’s accumulated points, if scoring is implemented.
+- Synonym: An alternative word shown on the answer side of the word card, corresponding to the selected difficulty.
+- Image Placeholder: The default icon (e.g., 📚) shown when no image is available for a word.
